@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title><![CDATA[short]]></title>
+        <description><![CDATA[short]]></description>
+        <link>http://thomascbullock.com</link>
+        <generator>RSS for Node</generator>
+        <lastBuildDate>Sun, 25 Apr 2021 01:08:22 GMT</lastBuildDate>
+        <atom:link href="http://thomascbullock.com/rss/rss-short.xml" rel="self" type="application/rss+xml"/>
+        <item>
+            <title><![CDATA[No title]]></title>
+            <link>http://thomascbullock.com/posts/2020/1/12/pearl-jam</link>
+            <guid isPermaLink="true">http://thomascbullock.com/posts/2020/1/12/pearl-jam</guid>
+        </item>
+        <item>
+            <title><![CDATA[No title]]></title>
+            <link>http://thomascbullock.com/posts/2019/12/26/chivalry</link>
+            <guid isPermaLink="true">http://thomascbullock.com/posts/2019/12/26/chivalry</guid>
+        </item>
+        <item>
+            <title><![CDATA[No title]]></title>
+            <link>http://thomascbullock.com/posts/2019/12/23/tree</link>
+            <guid isPermaLink="true">http://thomascbullock.com/posts/2019/12/23/tree</guid>
+        </item>
+    </channel>
+</rss>
