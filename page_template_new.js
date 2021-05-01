@@ -20,6 +20,7 @@ class Page {
                 <link rel="stylesheet" href="/css/reset.css" />
                 <link rel="stylesheet" href="/css/style.css" />
                 <link rel="shortcut icon" href="/img/logo.jpg" />
+                <link rel="EditURI" href="https://thomascbullock.com/xmlrpc" />
                 <title>${this.title}</title>
             </head>
             <body>
