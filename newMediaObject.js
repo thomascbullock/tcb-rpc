@@ -1,10 +1,19 @@
-server.on("metaWeblog.newMediaObject", function (err, params, callback) {
-	  const writeResult = fs.writeFileSync(params[3].name, params[3].bits);
-	  console.log(writeResult);
-	  const uploadResultObj = {
-		file: params[3].name,
-		url: "http://localhost:9090/picture.jpg",
-		type: params[3].type,
-	  };
-	  callback(null, uploadResultObj);
-	});
+	const auth = require('./auth').auth;
+	const authError = require('./auth').authError;
+	const MediaObject = require('./mediaObject');
+
+	exports.newMediaObject = async function(params) {
+		if (!auth(params)) {
+			return authError();
+		}
+
+		const mediaObjParams = {
+			name: params[3].name,
+			bits: params[3].bits,
+			type: params[3].type
+		}
+		const mediaObject = new MediaObject(mediaObjParams);
+		const retVal = await mediaObject.save();
+		return retVal;
+
+	}

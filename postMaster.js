@@ -1,5 +1,5 @@
 const fs = require('fs-extra');
-const MetaBuilder = require('./posts_meta_builder');
+const MetaBuilder = require('./posts_meta_builder').MetaBuilder;
 
 class Postmaster {
   constructor() {

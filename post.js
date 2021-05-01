@@ -17,7 +17,7 @@ class Post {
 		const postMeta = {
 			dateTime: this.dateTime,
 			type: this.categories[0],
-			title: this.title,
+			title: this.title||'',
 			slug: this.slug
 		}
 		
@@ -26,6 +26,11 @@ class Post {
 		const postFileName = `${this.postid}.md`;
 		await fs.writeFile(path.join('posts',postFileName),postFile);
 		
+	}
+	
+	async delete(){
+		const postFileName = `${this.postid}.md`;
+		await fs.remove(path.join('posts',postFileName));
 	}
 	
 }
