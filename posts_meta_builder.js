@@ -62,4 +62,4 @@ class MetaBuilder {
   }
 }
 
-module.exports = MetaBuilder;
+module.exports = {PostFromFile, MetaBuilder}
