@@ -164,7 +164,7 @@ app.get('/api/health', (req, res) => {
 
 /**
  * POST /api/upload-photo
- * Uploads a photo and creates a new post
+ * Uploads a photo, processes it, and creates a new post
  * 
  * Required fields:
  * - photo: The image file to upload
@@ -174,18 +174,36 @@ app.get('/api/health', (req, res) => {
  * - caption: Optional caption for the photo
  * - category: Post category (default: "photo")
  * - date: Publication date (default: now)
+ * - maxWidth: Maximum width in pixels (default: 1200)
+ * - maxHeight: Maximum height in pixels (default: 1200)
+ * - quality: JPEG quality 1-100 (default: 80)
+ * - convertToJpg: Whether to convert images to JPG (default: true)
  */
 app.post('/api/upload-photo', apiAuth, upload.single('photo'), async (req, res) => {
   try {
-    // Extract parameters
-    const title = req.body.title || ""; // Title is now optional, default to empty string
+    // Extract basic parameters
+    const title = req.body.title || "";
     const caption = req.body.caption || "";
     const category = req.body.category || "photo";
     const dateCreated = req.body.date ? new Date(req.body.date) : new Date();
 
+    // Validate photo upload
     if (!req.file) {
       return res.status(400).json({ success: false, error: "No photo provided" });
     }
+
+    // Extract image processing options
+    const imageOptions = {
+      maxWidth: parseInt(req.body.maxWidth, 10) || 1200,
+      maxHeight: parseInt(req.body.maxHeight, 10) || 1200,
+      quality: parseInt(req.body.quality, 10) || 80,
+      convertToJpg: req.body.convertToJpg !== 'false',
+      processImages: true
+    };
+
+    // Log upload info
+    console.log(`Mobile API photo upload: ${req.file.originalname} (${req.file.mimetype})`);
+    console.log('Image processing options:', imageOptions);
 
     // Generate a unique filename
     const fileExt = path.extname(req.file.originalname) || '.jpg';
@@ -198,17 +216,20 @@ app.post('/api/upload-photo', apiAuth, upload.single('photo'), async (req, res) 
       type: req.file.mimetype || 'image/jpeg'
     };
 
-    // Save the media file
-    const mediaObject = new MediaObject(mediaObjParams);
+    // Process and save the image
+    const mediaObject = new MediaObject(mediaObjParams, imageOptions);
     const mediaResult = await mediaObject.save();
 
     // Create markdown image reference
-    let markdown = `![${title || "Photo"}](/img/${fileName})`;
+    let markdown = `![${title || "Photo"}](${mediaResult.url})`;
     
     // Add caption if provided
     if (caption) {
       markdown += `\n\n${caption}`;
     }
+
+    // Add image info comment in markdown (invisible in rendered output)
+    markdown += `\n\n<!-- Image: ${mediaResult.name} | Size: ${Math.round(mediaResult.size / 1024)} KB | Type: ${mediaResult.type} -->`;
 
     // Create post with the image
     const postParams = {
@@ -229,9 +250,17 @@ app.post('/api/upload-photo', apiAuth, upload.single('photo'), async (req, res) 
     res.json({ 
       success: true, 
       postId: postId,
-      imageUrl: `/img/${fileName}`,
+      imageUrl: mediaResult.url,
       title: title,
-      message: "Photo uploaded and post created successfully"
+      imageInfo: {
+        name: mediaResult.name,
+        size: mediaResult.size,
+        type: mediaResult.type,
+        width: imageOptions.maxWidth,
+        height: imageOptions.maxHeight,
+        processed: mediaResult.processed
+      },
+      message: "Photo uploaded, processed, and post created successfully"
     });
   } catch (error) {
     console.error("Error handling mobile upload:", error);
