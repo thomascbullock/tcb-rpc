@@ -192,3 +192,17 @@ blockquote {
 		font-size: .5em;
     }
 }
+
+/* RSS links in footer */
+.rss-links {
+    text-align: center;
+    margin-top: 1.5em;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.rss-links a {
+    color: #222222;
+    text-decoration: none;
+    border-bottom: 1px dotted #222222;
+    padding-bottom: 1px;

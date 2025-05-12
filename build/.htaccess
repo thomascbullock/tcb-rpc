@@ -1,0 +1,9 @@
+
+# Feed redirects
+RedirectMatch 301 ^/feed/?$ /feeds/index.xml
+RedirectMatch 301 ^/rss/?$ /feeds/index.xml
+RedirectMatch 301 ^/atom/?$ /feeds/atom.xml
+RedirectMatch 301 ^/feeds/all/?$ /feeds/rss-all.xml
+RedirectMatch 301 ^/feeds/long/?$ /feeds/rss-long.xml
+RedirectMatch 301 ^/feeds/short/?$ /feeds/rss-short.xml
+RedirectMatch 301 ^/feeds/photo/?$ /feeds/rss-photo.xml

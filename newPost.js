@@ -1,45 +1,57 @@
+/**
+ * Implementation of metaWeblog.newPost method
+ * Creates a new blog post
+ */
 const auth = require('./auth').auth;
 const authError = require('./auth').authError;
 const Post = require('./post');
 
 exports.newPost = async function(params) {
-	if (!auth(params)) {
-		return authError();
-	}
-	
-	const postParams = {
-		description: params[3].description,
-		title: params[3].title,
-		categories: params[3].categories,
-		link: params[3].link,
-	}
-	
-	if (params[3].custom_fields){
-		for (let i = 0; i < params[3].custom_fields.length; i++) {
-			console.log(params[3].custom_fields[i]);
-			const paramKey = params[3].custom_fields[i].key;
-			const paramValue = params[3].custom_fields[i].value;
-			postParams[paramKey] = paramValue;
-		}
-	}
-	
-	if (!postParams.dateTime){
-		const isoDate = new Date(Date.now());
-		const isoString = isoDate.toISOString();
-		console.log(isoString);
-		postParams.dateTime = isoString.substring(0,10);
-	}
-	
-	if (!postParams.slug){
-		 postParams.slug = postParams.title.replace(/\s+/g, "-").toLowerCase();
-	}
-	
-	postParams.postid = `${postParams.dateTime.replace(/-/g, "")}-${
-		  postParams.slug
-		}`;
-
-	const post = new Post(postParams);
-	await post.save();
-	return postParams.postid;
-	
-}
+  try {
+    if (!auth(params)) {
+      return authError();
+    }
+    
+    // Extract post content
+    const postContent = params[3];
+    
+    // Create post parameters
+    const postParams = {
+      description: postContent.description || '',
+      title: postContent.title || '',
+      categories: postContent.categories || ['long'],
+      // Use standard MetaWeblog API dateCreated field
+      dateCreated: postContent.dateCreated || new Date(),
+    };
+    
+    // Handle custom fields
+    if (postContent.custom_fields) {
+      for (let i = 0; i < postContent.custom_fields.length; i++) {
+        console.log('Custom field:', postContent.custom_fields[i]);
+        const paramKey = postContent.custom_fields[i].key;
+        const paramValue = postContent.custom_fields[i].value;
+        postParams[paramKey] = paramValue;
+      }
+    }
+    
+    // Handle slug (WordPress compatibility)
+    if (postContent.wp_slug) {
+      postParams.slug = postContent.wp_slug;
+    }
+    
+    // Create post object
+    const post = new Post(postParams);
+    
+    // Save the post and get ID
+    const postId = await post.save();
+    
+    // MetaWeblog API requires returning the post ID as a string
+    return postId;
+  } catch (error) {
+    console.error('Error creating post:', error);
+    return {
+      faultCode: 500,
+      faultString: `Error creating post: ${error.message}`
+    };
+  }
+};

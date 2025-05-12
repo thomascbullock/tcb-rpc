@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title><![CDATA[T - Short Posts]]></title>
+        <description><![CDATA[Thomas C. Bullock's Blog - short posts feed]]></description>
+        <link>https://thomascbullock.com</link>
+        <image>
+            <url>https://thomascbullock.com/img/logo.jpg</url>
+            <title>T - Short Posts</title>
+            <link>https://thomascbullock.com</link>
+        </image>
+        <generator>RSS for Node</generator>
+        <lastBuildDate>Sat, 10 May 2025 23:31:37 GMT</lastBuildDate>
+        <atom:link href="https://thomascbullock.com/feeds/rss-short.xml" rel="self" type="application/rss+xml"/>
+        <pubDate>Sat, 10 May 2025 23:31:37 GMT</pubDate>
+        <language><![CDATA[en]]></language>
+        <ttl>60</ttl>
+        <item>
+            <title><![CDATA[No title]]></title>
+            <description><![CDATA[<blockquote>
+<p>Pearl Jam will release their much-anticipated eleventh studio album, Gigaton, on Monkeywrench Records/ Republic Records on March 27, 2020 in the US.</p>
+</blockquote>
+<p><a href="https://pearljam.com/news/new-pearl-jam-album-gigaton-available-march-27">This</a> is very exciting news, although they've managed to book a US tour which not only includes no Seattle dates, but includes a Colorado show the week before I was going to be there anyway. I can't win.</p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2020/01/12/pearl-jam</link>
+            <guid isPermaLink="false">000bcdd1-7fa0-4a80-9068-d1d6058fabb4</guid>
+            <category><![CDATA[short]]></category>
+            <pubDate>Mon, 13 Jan 2020 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<blockquote>
+<p>Pearl Jam will release their much-anticipated eleventh studio album, Gigaton, on Monkeywrench Records/ Republic Records on March 27, 2020 in the US.</p>
+</blockquote>
+<p><a href="https://pearljam.com/news/new-pearl-jam-album-gigaton-available-march-27">This</a> is very exciting news, although they've managed to book a US tour which not only includes no Seattle dates, but includes a Colorado show the week before I was going to be there anyway. I can't win.</p>
+]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[No title]]></title>
+            <description><![CDATA[<blockquote>
+<p>Chivalry is not dead. But you soon will be.</p>
+</blockquote>
+<p>Troy, during an intense Starwhal battle.</p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2019/12/27/f726a8f5-4f67-4d86-b88e-51155dc4b177</link>
+            <guid isPermaLink="false">f726a8f5-4f67-4d86-b88e-51155dc4b177</guid>
+            <category><![CDATA[short]]></category>
+            <pubDate>Fri, 27 Dec 2019 12:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<blockquote>
+<p>Chivalry is not dead. But you soon will be.</p>
+</blockquote>
+<p>Troy, during an intense Starwhal battle.</p>
+]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[No title]]></title>
+            <description><![CDATA[<blockquote>
+<p>Chivalry is not dead. But you soon will be.</p>
+</blockquote>
+<p>Troy, during an intense Starwhal battle.</p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2019/12/26/chivalry</link>
+            <guid isPermaLink="false">c8258c3a-0a8a-4ce4-af34-6bcb9fe65741</guid>
+            <category><![CDATA[short]]></category>
+            <pubDate>Fri, 27 Dec 2019 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<blockquote>
+<p>Chivalry is not dead. But you soon will be.</p>
+</blockquote>
+<p>Troy, during an intense Starwhal battle.</p>
+]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[No title]]></title>
+            <description><![CDATA[<p>Twice today I've seen people carrying just-bought trees away from stores. I understand buying gifts in a panic on Christmas Eve, but buying the tree at last minute shows that:</p>
+<ul>
+<li>
+<p>You're hosting the family gathering, and</p>
+</li>
+<li>
+<p>You wish you weren't.</p>
+</li>
+</ul>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2019/12/23/tree</link>
+            <guid isPermaLink="false">df90931e-904d-46ea-b03e-93686a8affaf</guid>
+            <category><![CDATA[short]]></category>
+            <pubDate>Tue, 24 Dec 2019 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<p>Twice today I've seen people carrying just-bought trees away from stores. I understand buying gifts in a panic on Christmas Eve, but buying the tree at last minute shows that:</p>
+<ul>
+<li>
+<p>You're hosting the family gathering, and</p>
+</li>
+<li>
+<p>You wish you weren't.</p>
+</li>
+</ul>
+]]></content:encoded>
+        </item>
+    </channel>
+</rss>

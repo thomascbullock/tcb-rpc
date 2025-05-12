@@ -1,0 +1,568 @@
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title><![CDATA[T]]></title>
+        <description><![CDATA[Thomas C. Bullock's Blog]]></description>
+        <link>https://thomascbullock.com</link>
+        <image>
+            <url>https://thomascbullock.com/img/logo.jpg</url>
+            <title>T</title>
+            <link>https://thomascbullock.com</link>
+        </image>
+        <generator>RSS for Node</generator>
+        <lastBuildDate>Sat, 10 May 2025 23:31:37 GMT</lastBuildDate>
+        <atom:link href="https://thomascbullock.com/feeds/index.xml" rel="self" type="application/rss+xml"/>
+        <pubDate>Sat, 10 May 2025 23:31:37 GMT</pubDate>
+        <language><![CDATA[en]]></language>
+        <ttl>60</ttl>
+        <item>
+            <title><![CDATA[The Case for In-Person Conferences]]></title>
+            <description><![CDATA[<p>Recently Apple <a href="https://www.apple.com/newsroom/2022/04/apples-worldwide-developers-conference-returns-in-its-all-online-format/">announced</a> that WWDC 2022 would primarily be an online event, as it has been the last two years. Much of the Apple commentariat has been talking since the 2020 conference about the superiority of online only WWDC, with many calling for a permanent shift away from an in-person annual gathering. There are a couple of reasons people cite for this which I think are valid:</p>
+<ul>
+<li>
+<p>Cost</p>
+<p>A $1600 ticket and a week's worth of travel and existence in California were very expensive.</p>
+</li>
+<li>
+<p>Better content for virtual attendees</p>
+<p>Many people found the videos designed from the beginning to be online-only more compelling when viewed at home than previous years' solution of filming the in-person sessions. In addition to the presentation style, they didn't have to form a coherent schedule, so an API which took 12 minutes to explain could have a 12 minute video explaining it, rather than a 30 or 60 minute presentation.</p>
+</li>
+</ul>
+<p>There's another reason people often cite which I'm not convinced by: inclusivity. To be sure, in-person WWDC excludes people - it excludes people who can't afford it, it excludes people who can't travel to California for a week, and, having <a href="https://www.macworld.com/article/190573/wwdcsoldout.html">sold out every year since 2008</a>, it excludes people who didn't win the ticket lottery. Is this a reason not to have an in-person event at all, though? I'm not sure. In the first place, many other parts of the &quot;writing software for Apple platforms&quot; world are exclusive - the developer program costs $99 per year, and of course a device to write apps with costs anywhere from <s>$999 whoops forgot about Swift Playgrounds for iPad</s> $329 to $52,999.</p>
+<p>Additionally, Apple has been making the conference content more available than ever over the years - session videos were first available for purchase, then free with a developer account, and eventually free with a developer account and posted during the conference, giving those who couldn't attend the chance to get the same content with only a few days delay. Of course, there were many more people each year who wanted to attend than could attend, but given the efforts made to make the content more widely available, I don't think that's a slam dunk reason not to have an in-person conference at all.</p>
+<p>There are also a couple of real benefits to an in-person event which some of the commentary is too quick to dismiss:</p>
+<ul>
+<li>
+<p>Community</p>
+<p>Whether someone is a professional iOS developer or a bedroom tinkerer, or even just an interested fan, opportunities to make connections with people who share your interests are not always widely available, even without all of the <s>truths</s> stereotypes about most of us being introverted basement dwellers. It's one of the reasons, for people who like such things, that sports events and concerts are so exhilarating - for a short time, the thing you like is a normal thing people like. And <a href="https://d.pr/i/u1R">people</a> <a href="https://marco.org/2010/06/12/id-like-to-extend-a-special-thanks-to-paul">often</a> <a href="https://mykewasright.com/post/146076173501/wwdc-2016">meet</a> <a href="https://www.caseyliss.com/2015/9/10/siracusa-on-toasters">there</a>.</p>
+<p>I'm sure those suggesting that the era of in-person WWDC is over don't mean their comments in this way, but sometimes there's a bit of an &quot;I got mine&quot; feeling to the discussion. Yes, people who have been there before might not feel like there's any further value to them personally to future in-person conferences. But calling for something to be cancelled after you've had your turn is the most exclusive take of all.</p>
+</li>
+<li>
+<p>Better Products</p>
+<p>As I write this, it's been 944 days since Apple announced products in front of real live people. The company has all sorts of ways of getting user feedback, but anyone who has ever presented at an in-person event knows how much the reality of the crowd focuses your mind and drives up your desire to get things right, even way back in the product design stage. &quot;How are people <a href="https://9to5mac.com/2022/04/04/former-apple-engineer-describes-steve-jobss-reaction-when-he-was-shown-the-first-facetime-demo/">going to react</a> when we show them the demo?&quot; adds good pressure to a product process, and for two years now this has been missing.</p>
+<p>There have been some memorable audience reactions at WWDC over the years, from <a href="https://youtube.com/clip/Ugkx4hMrV7mgbyf9GUktykAiB0_FUpHtaLCT">Craig Federighi's surprise at the amount of applause they got for fixing multiple displays in 2013</a>, to the <a href="https://www.youtube.com/watch?v=YuW4Suo4OVg">huge intake of breath that followed John Ternus' announcement of the price of the Pro Stand in 2019</a>. And WWDC is the one time of year where Apple has to brace for an audience reaction from people they didn't invite - the crowd is well disposed to the company, certainly, but it's not the same as a press pack. I can't help wonder how the anticipation of facing people in person might have helped them avoid <a href="https://9to5mac.com/2021/10/18/apple-reverts-to-more-traditional-safari-tab-design-in-macos-monterey-rc-following-controversy/">last year's Safari misadventure</a>.</p>
+</li>
+</ul>
+<p>I have no idea whether there will be another in-person WWDC, but I hope there is. I even hope the lunches are still bad.</p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2022/04/11/the-case-for-in-person-conferences</link>
+            <guid isPermaLink="false">85c708f8-ea68-49d5-a9f5-6a1c1af57c3f</guid>
+            <category><![CDATA[long]]></category>
+            <dc:creator><![CDATA[T]]></dc:creator>
+            <pubDate>Tue, 12 Apr 2022 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<p>Recently Apple <a href="https://www.apple.com/newsroom/2022/04/apples-worldwide-developers-conference-returns-in-its-all-online-format/">announced</a> that WWDC 2022 would primarily be an online event, as it has been the last two years. Much of the Apple commentariat has been talking since the 2020 conference about the superiority of online only WWDC, with many calling for a permanent shift away from an in-person annual gathering. There are a couple of reasons people cite for this which I think are valid:</p>
+<ul>
+<li>
+<p>Cost</p>
+<p>A $1600 ticket and a week's worth of travel and existence in California were very expensive.</p>
+</li>
+<li>
+<p>Better content for virtual attendees</p>
+<p>Many people found the videos designed from the beginning to be online-only more compelling when viewed at home than previous years' solution of filming the in-person sessions. In addition to the presentation style, they didn't have to form a coherent schedule, so an API which took 12 minutes to explain could have a 12 minute video explaining it, rather than a 30 or 60 minute presentation.</p>
+</li>
+</ul>
+<p>There's another reason people often cite which I'm not convinced by: inclusivity. To be sure, in-person WWDC excludes people - it excludes people who can't afford it, it excludes people who can't travel to California for a week, and, having <a href="https://www.macworld.com/article/190573/wwdcsoldout.html">sold out every year since 2008</a>, it excludes people who didn't win the ticket lottery. Is this a reason not to have an in-person event at all, though? I'm not sure. In the first place, many other parts of the &quot;writing software for Apple platforms&quot; world are exclusive - the developer program costs $99 per year, and of course a device to write apps with costs anywhere from <s>$999 whoops forgot about Swift Playgrounds for iPad</s> $329 to $52,999.</p>
+<p>Additionally, Apple has been making the conference content more available than ever over the years - session videos were first available for purchase, then free with a developer account, and eventually free with a developer account and posted during the conference, giving those who couldn't attend the chance to get the same content with only a few days delay. Of course, there were many more people each year who wanted to attend than could attend, but given the efforts made to make the content more widely available, I don't think that's a slam dunk reason not to have an in-person conference at all.</p>
+<p>There are also a couple of real benefits to an in-person event which some of the commentary is too quick to dismiss:</p>
+<ul>
+<li>
+<p>Community</p>
+<p>Whether someone is a professional iOS developer or a bedroom tinkerer, or even just an interested fan, opportunities to make connections with people who share your interests are not always widely available, even without all of the <s>truths</s> stereotypes about most of us being introverted basement dwellers. It's one of the reasons, for people who like such things, that sports events and concerts are so exhilarating - for a short time, the thing you like is a normal thing people like. And <a href="https://d.pr/i/u1R">people</a> <a href="https://marco.org/2010/06/12/id-like-to-extend-a-special-thanks-to-paul">often</a> <a href="https://mykewasright.com/post/146076173501/wwdc-2016">meet</a> <a href="https://www.caseyliss.com/2015/9/10/siracusa-on-toasters">there</a>.</p>
+<p>I'm sure those suggesting that the era of in-person WWDC is over don't mean their comments in this way, but sometimes there's a bit of an &quot;I got mine&quot; feeling to the discussion. Yes, people who have been there before might not feel like there's any further value to them personally to future in-person conferences. But calling for something to be cancelled after you've had your turn is the most exclusive take of all.</p>
+</li>
+<li>
+<p>Better Products</p>
+<p>As I write this, it's been 944 days since Apple announced products in front of real live people. The company has all sorts of ways of getting user feedback, but anyone who has ever presented at an in-person event knows how much the reality of the crowd focuses your mind and drives up your desire to get things right, even way back in the product design stage. &quot;How are people <a href="https://9to5mac.com/2022/04/04/former-apple-engineer-describes-steve-jobss-reaction-when-he-was-shown-the-first-facetime-demo/">going to react</a> when we show them the demo?&quot; adds good pressure to a product process, and for two years now this has been missing.</p>
+<p>There have been some memorable audience reactions at WWDC over the years, from <a href="https://youtube.com/clip/Ugkx4hMrV7mgbyf9GUktykAiB0_FUpHtaLCT">Craig Federighi's surprise at the amount of applause they got for fixing multiple displays in 2013</a>, to the <a href="https://www.youtube.com/watch?v=YuW4Suo4OVg">huge intake of breath that followed John Ternus' announcement of the price of the Pro Stand in 2019</a>. And WWDC is the one time of year where Apple has to brace for an audience reaction from people they didn't invite - the crowd is well disposed to the company, certainly, but it's not the same as a press pack. I can't help wonder how the anticipation of facing people in person might have helped them avoid <a href="https://9to5mac.com/2021/10/18/apple-reverts-to-more-traditional-safari-tab-design-in-macos-monterey-rc-following-controversy/">last year's Safari misadventure</a>.</p>
+</li>
+</ul>
+<p>I have no idea whether there will be another in-person WWDC, but I hope there is. I even hope the lunches are still bad.</p>
+]]></content:encoded>
+            <dc:creator>T</dc:creator>
+        </item>
+        <item>
+            <title><![CDATA[No title]]></title>
+            <description><![CDATA[<p><img src="/img/DSC03660.JPG" alt="DSC03660"></p>
+<p><img src="/img/IMG_2262.jpeg" alt="IMG 2262"></p>
+<p>It's a really good looking city.</p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2021/05/08/seattle-may-2021</link>
+            <guid isPermaLink="false">8dd18b1a-56fe-48c2-9a0c-85f4faa03b11</guid>
+            <category><![CDATA[photo]]></category>
+            <dc:creator><![CDATA[T]]></dc:creator>
+            <pubDate>Sun, 09 May 2021 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<p><img src="/img/DSC03660.JPG" alt="DSC03660"></p>
+<p><img src="/img/IMG_2262.jpeg" alt="IMG 2262"></p>
+<p>It's a really good looking city.</p>
+]]></content:encoded>
+            <dc:creator>T</dc:creator>
+        </item>
+        <item>
+            <title><![CDATA[No title]]></title>
+            <description><![CDATA[<p><img src="/img/20200516_before.jpg" alt="Before"></p>
+<p><img src="/img/20200516_after.jpg" alt="After"></p>
+<p>That took longer than I expected.</p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2020/05/14/wood</link>
+            <guid isPermaLink="false">023a2444-3af0-4490-8b7d-20e7e11aced2</guid>
+            <category><![CDATA[photo]]></category>
+            <dc:creator><![CDATA[T]]></dc:creator>
+            <pubDate>Fri, 15 May 2020 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<p><img src="/img/20200516_before.jpg" alt="Before"></p>
+<p><img src="/img/20200516_after.jpg" alt="After"></p>
+<p>That took longer than I expected.</p>
+]]></content:encoded>
+            <dc:creator>T</dc:creator>
+        </item>
+        <item>
+            <title><![CDATA[On Habits]]></title>
+            <description><![CDATA[<p>Schedule:</p>
+<ul>
+<li>
+<p>Wake up in time to do all subsequent steps</p>
+</li>
+<li>
+<p>Coordinate leaving the house clean and dressed with everything I need for the day</p>
+</li>
+<li>
+<p>Drive to the ferry terminal</p>
+</li>
+<li>
+<p>Ride the ferry for a hour. Do some work or read the newspaper(‘s iPad app)</p>
+</li>
+<li>
+<p>Walk from the ferry terminal to the office</p>
+</li>
+<li>
+<p>Try in vain to fit in actual work around the chaos of instant messages, meetings, drive bys, urgent emails, and the sounds of other people dealing with the same</p>
+</li>
+<li>
+<p>Retrieve the salad I put in the fridge earlier, try to convince myself it’s better than finding food downtown, remember that I don’t have time to find food downtown, eat the salad</p>
+</li>
+<li>
+<p>Try in vain to fit in actual work around the chaos of instant messages, meetings, drive bys, urgent emails, and the sounds of other people dealing with the same</p>
+</li>
+<li>
+<p>Walk to the ferry terminal</p>
+</li>
+<li>
+<p>Ride the ferry for an hour. Usually have a beer with Troy</p>
+</li>
+<li>
+<p>Drive home. Usually drop off Troy first</p>
+</li>
+<li>
+<p>Make/eat/cleanup dinner</p>
+</li>
+<li>
+<p>Work, no longer interrupted because everyone else has stopped for the day</p>
+</li>
+<li>
+<p>Go to sleep</p>
+</li>
+</ul>
+<p>For the last 2 years that I’ve lived here, this has been the vast majority of my Mondays-Fridays. In quaran-time, it’s been more like this:</p>
+<ul>
+<li>
+<p>Wake up a bit later</p>
+</li>
+<li>
+<p>Clean self and teeth, put on jeans and a t-shirt</p>
+</li>
+<li>
+<p>Work, still interrupted but somehow with more time overall to focus</p>
+</li>
+<li>
+<p>Collect salad from fridge, convince myself it’s better than DoorDash. Remember how expensive DoorDash is. Eat salad.</p>
+</li>
+<li>
+<p>Work, still interrupted but somehow with more time overall to focus</p>
+</li>
+<li>
+<p>Run</p>
+</li>
+<li>
+<p>Make/eat/cleanup dinner</p>
+</li>
+<li>
+<p>Work, no longer interrupted because everyone else has stopped for the day</p>
+</li>
+<li>
+<p>Go to sleep</p>
+</li>
+</ul>
+<p>The new world involves more work, more intentional exercise, and is altogether less interesting. And yet, if I think about going back to how things were in the before time, it sounds <em>exhausting</em>. I should say at this point that I’m aware I’m at the very bottom of people impacted by Covid. I have a job I can do from home, a home with enough space to work, and nobody else to have to organize around. There are things I wish were different in life in general, but specifically related to this crisis, I’m unbelievably fortunate. This piece isn’t about my personal circumstance, though.</p>
+<p>Very few of the things we do throughout the day are done by conscious choice. After the first time or two, I never actively thought about how to do the drive to the ferry terminal, or whether I want to walk up the steep hike from 1st to 8th avenue to get to the office, or any of the other autopilot actions that keep us going throughout the day. And the longer we’re unable to do those things, the more those habits are being eroded. We’re going to have to relearn a lot of things.</p>
+<p>Not just work-day related things, either. Some of us used to go to church, which meant getting up in time to be presentable on one of the days when you don’t <em>have</em> to. We might pretend to be virtuous and say this was always a positive, thought-out choice, but for most people, most of the time, it was habit. It’s a muscle which is atrophying, one we’ll have to train all over again, and naively we assume it’ll come back naturally. It won’t be easy.</p>
+<p>Social interactions are not generally between people equally enthusiastic about them. Some people can’t wait to go meet x friend/check in on x relative/etc., and other people reluctantly go, knowing it’s the right thing to do, and, as with all habits, having had certain mental patterns worn in through positive reinforcement. By the time we get to use them again, the paths we travel down on autopilot will be overgrown with months of anxiety, apathy, and much else besides. It’s difficult to imagine now, because we’re all full of frustrated energy - the positives of brewery patios and coffee shops and whatever else we miss looms large. But it’s coming.</p>
+<p>When the starting pistol fires for a return to real life, some people are going to find, perhaps to their surprise, that they don’t want to. It might be you. Or me. But we should be prepared for it. Much good has been said and written about the ways we need to bear with one another as everyone has different and unpredictable reactions to life under lockdown. I think we’re going to need just as much forbearance and patience for all of our unpredictable reactions when we’re eventually released.</p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2020/05/14/on-habits</link>
+            <guid isPermaLink="false">736164e7-1724-4f68-97a5-14bbba18ebb0</guid>
+            <category><![CDATA[long]]></category>
+            <dc:creator><![CDATA[T]]></dc:creator>
+            <pubDate>Fri, 15 May 2020 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<p>Schedule:</p>
+<ul>
+<li>
+<p>Wake up in time to do all subsequent steps</p>
+</li>
+<li>
+<p>Coordinate leaving the house clean and dressed with everything I need for the day</p>
+</li>
+<li>
+<p>Drive to the ferry terminal</p>
+</li>
+<li>
+<p>Ride the ferry for a hour. Do some work or read the newspaper(‘s iPad app)</p>
+</li>
+<li>
+<p>Walk from the ferry terminal to the office</p>
+</li>
+<li>
+<p>Try in vain to fit in actual work around the chaos of instant messages, meetings, drive bys, urgent emails, and the sounds of other people dealing with the same</p>
+</li>
+<li>
+<p>Retrieve the salad I put in the fridge earlier, try to convince myself it’s better than finding food downtown, remember that I don’t have time to find food downtown, eat the salad</p>
+</li>
+<li>
+<p>Try in vain to fit in actual work around the chaos of instant messages, meetings, drive bys, urgent emails, and the sounds of other people dealing with the same</p>
+</li>
+<li>
+<p>Walk to the ferry terminal</p>
+</li>
+<li>
+<p>Ride the ferry for an hour. Usually have a beer with Troy</p>
+</li>
+<li>
+<p>Drive home. Usually drop off Troy first</p>
+</li>
+<li>
+<p>Make/eat/cleanup dinner</p>
+</li>
+<li>
+<p>Work, no longer interrupted because everyone else has stopped for the day</p>
+</li>
+<li>
+<p>Go to sleep</p>
+</li>
+</ul>
+<p>For the last 2 years that I’ve lived here, this has been the vast majority of my Mondays-Fridays. In quaran-time, it’s been more like this:</p>
+<ul>
+<li>
+<p>Wake up a bit later</p>
+</li>
+<li>
+<p>Clean self and teeth, put on jeans and a t-shirt</p>
+</li>
+<li>
+<p>Work, still interrupted but somehow with more time overall to focus</p>
+</li>
+<li>
+<p>Collect salad from fridge, convince myself it’s better than DoorDash. Remember how expensive DoorDash is. Eat salad.</p>
+</li>
+<li>
+<p>Work, still interrupted but somehow with more time overall to focus</p>
+</li>
+<li>
+<p>Run</p>
+</li>
+<li>
+<p>Make/eat/cleanup dinner</p>
+</li>
+<li>
+<p>Work, no longer interrupted because everyone else has stopped for the day</p>
+</li>
+<li>
+<p>Go to sleep</p>
+</li>
+</ul>
+<p>The new world involves more work, more intentional exercise, and is altogether less interesting. And yet, if I think about going back to how things were in the before time, it sounds <em>exhausting</em>. I should say at this point that I’m aware I’m at the very bottom of people impacted by Covid. I have a job I can do from home, a home with enough space to work, and nobody else to have to organize around. There are things I wish were different in life in general, but specifically related to this crisis, I’m unbelievably fortunate. This piece isn’t about my personal circumstance, though.</p>
+<p>Very few of the things we do throughout the day are done by conscious choice. After the first time or two, I never actively thought about how to do the drive to the ferry terminal, or whether I want to walk up the steep hike from 1st to 8th avenue to get to the office, or any of the other autopilot actions that keep us going throughout the day. And the longer we’re unable to do those things, the more those habits are being eroded. We’re going to have to relearn a lot of things.</p>
+<p>Not just work-day related things, either. Some of us used to go to church, which meant getting up in time to be presentable on one of the days when you don’t <em>have</em> to. We might pretend to be virtuous and say this was always a positive, thought-out choice, but for most people, most of the time, it was habit. It’s a muscle which is atrophying, one we’ll have to train all over again, and naively we assume it’ll come back naturally. It won’t be easy.</p>
+<p>Social interactions are not generally between people equally enthusiastic about them. Some people can’t wait to go meet x friend/check in on x relative/etc., and other people reluctantly go, knowing it’s the right thing to do, and, as with all habits, having had certain mental patterns worn in through positive reinforcement. By the time we get to use them again, the paths we travel down on autopilot will be overgrown with months of anxiety, apathy, and much else besides. It’s difficult to imagine now, because we’re all full of frustrated energy - the positives of brewery patios and coffee shops and whatever else we miss looms large. But it’s coming.</p>
+<p>When the starting pistol fires for a return to real life, some people are going to find, perhaps to their surprise, that they don’t want to. It might be you. Or me. But we should be prepared for it. Much good has been said and written about the ways we need to bear with one another as everyone has different and unpredictable reactions to life under lockdown. I think we’re going to need just as much forbearance and patience for all of our unpredictable reactions when we’re eventually released.</p>
+]]></content:encoded>
+            <dc:creator>T</dc:creator>
+        </item>
+        <item>
+            <title><![CDATA[Expired]]></title>
+            <description><![CDATA[<p>Good grief, it was 10 years ago today.</p>
+<p>A year after our old band played our last gig, I wrote some reflections. Having just rediscovered them, here they are a decade later.</p>
+<p><strong>March 12, 2010</strong> – myself, Mike Korth, Will Caudill, and Neil Sheets gathered together with a bunch of friends at the Crabtree Brewery in Greeley, for what turned out to be the last Expiration Date gig. We didn't intend for it to be the last one, but nothing lasts forever, life moves on, and other vague cliches to explain that it just sort of didn't ever happen again. I'm pretty nostalgic by nature, the past almost always looks better after it's happened than it did at the time, and a year since the last gig seems like a good opportunity to remember a couple of my favorite moments.</p>
+<p><strong>August, 2005</strong> – Grand Island, Nebraska:</p>
+<p>We had seen a battle of the bands go down in this place the year before, and naively thought &quot;let's come back next year and win this thing.&quot; Upon arrival, we discovered that there was only 1 other band competing – our confidence increased at this point, surely we, a band from Nowhere, Colorado, who had played about 2 gigs so far, would be miles better than whatever 'other' band had kindly agreed to open for us. We didn't have any gear in those days, so we spent the hour before the competition frantically trying to borrow drums and amps, then we arrived on stage and realized we'd forgotten to tune our instruments. Several awkward minutes passed as we got everything in tune, and we were ready to begin the set. First, however, I released a very loud, accidental burst of feedback – I wasn't used to the amp, you see. So, with the judges looking at their watches and covering their ears, and with a glare coming from the guy whose amp I'd borrowed that would definitely turn me to stone if I looked him in the eye, we played our first song.
+I won't speak for the other two, but I know my playing and singing were filled with wrong notes and missed words, it took about 4 minutes into the set for all of our confidence to be blown away. We stumbled through for about 20 minutes, and then took second place. Of 2. The judges comments that particularly stuck with me were &quot;I like your song titles&quot;, and &quot;you're on your way to being a good garage band.&quot;</p>
+<p><strong>October, 2005</strong> – Briggsdale, Colorado:</p>
+<p>This wasn't an Expiration Date show - we'd been asked to come out to a church to play some...well, church music, for an evening – we didn't do any of our songs, but what makes this stick in my mind was the soundcheck: We'd been toying around with a weird song I wasn't really sure about called Back2Earth – we made a run of it in the afternoon to warm up for the Briggsdale gig, and a run of notes came out of Will's bass for the first time that would come to define that song and our band for the next several years. I still dislike the lyric to that song intensely, whining about problems with girls is sort of the lowest common denominator of songwriting, it just always felt like we should have been better than that, but for whatever reason it was a favorite track from this moment until the end. Mainly, I think, because of Will's fantastic bass playing.</p>
+<p><strong>January, 2006</strong> – Ault, Colorado:</p>
+<p>Some late night in early 2006, I got an instant message (remember those?) from Will asking if his friend Mike could join the group. Now, in those days I was hesitant to have an opinion about anything in the band – as the front man and songwriter, I felt like I had too much control already, so any time any of the others expressed an opinion, I was pretty eager to do whatever they wanted. So it was agreed that Mike would join us at our next practice. I can't remember why I didn't bother to ask if Mike could play the guitar, but the first practice with him on board revealed that we had forgotten to check that detail. We kept him low in the mix for about 9 months, and he turned into quite a good guitar player – Mike is one of my closest friends these days but I still don't recommend jumping into someone's band without knowing what you're doing as the beginning of a friendship.</p>
+<p><strong>May, 2007</strong> – Toad's Tavern, Denver, Colorado:</p>
+<p>This was the only gig we ever filmed or recorded, and I was very pleasantly surprised that we sounded... like a band. I have no idea what has happened to the dvd in recent years, but it was a great night and a confirmation that maybe we were on to something. It seems silly now, but the other thing I recall about that night was how intimidating bars were when we were all under 21. Not only had we come into this place when it really felt like we shouldn't have, but all the people who were coming to see us weren't going to be drinking either... Not a great night for the Toad's bank account, but a wonderful night for us.</p>
+<p><strong>September, 2007-July, 2008</strong> – Blind Dog Studios, Longmont, Colorado:</p>
+<p>During several evenings and weekends over these months, we laid the tracks to an album that will probably never be released. It's almost totally done, but as we don't really exist anymore it feels a bit strange to think about working on it again now. A couple of things learned in the studio – first, in the studio, there are only opinions. On stage, it's a lot more objective – something either works in front of an audience, or it doesn't. If you're unsure, you can try it in front of a few different audiences, but eventually, you'll know. In the studio, you don't have any of that. You can have people you know there with you, you can have some friends listen to some rough mixes... but you only end up with one finished product, and however much you've worked on it, you only think it's great. You don't know. The other thing I discovered in the studio, was that people have opinions different to mine. In live situations, everything goes by so fast that you let most things go, but in the studio, if you play something that someone else thinks is awful... it can be listened to again, and everyone can weigh in. You discover very quickly whether or not you're on the same page musically in the studio, and we are all very different people.</p>
+<p><strong>March 12, 2010</strong> – Crabtree Brewery, Greeley Colorado:</p>
+<p>2009 and 2010 were pretty lean years for us, I think we played 3 gigs, of which this was the last. We'd made friends with some people who run some poetry slams in Greeley, and they asked us to play about 20 minutes between each of the rounds... so 5 sets over the course of a few hours – it made for a great evening. Because we'd played so little lately, I was expecting a disaster of a gig, but this worked out really well. They hadn't set up the main part of the brewery where they normally have gigs, because they didn't expect anyone to show up, so we were crammed into a corner by the bar.... which meant the place was pretty packed even if there were all of about 40 people there. It was a hot, loud room, of friends and fans who knew most of the words better than we did, and fittingly, the last song we played was It's the End of the World as We Know It (And I Feel Fine). We &quot;debuted&quot; a new song that night, funnily enough, so that audience was the first and last audience to hear 'I'm Not.' And now, We're Not.</p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2020/03/11/expired</link>
+            <guid isPermaLink="false">b4237e98-1346-469d-908b-a7d8d6e72907</guid>
+            <category><![CDATA[long]]></category>
+            <dc:creator><![CDATA[T]]></dc:creator>
+            <pubDate>Thu, 12 Mar 2020 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<p>Good grief, it was 10 years ago today.</p>
+<p>A year after our old band played our last gig, I wrote some reflections. Having just rediscovered them, here they are a decade later.</p>
+<p><strong>March 12, 2010</strong> – myself, Mike Korth, Will Caudill, and Neil Sheets gathered together with a bunch of friends at the Crabtree Brewery in Greeley, for what turned out to be the last Expiration Date gig. We didn't intend for it to be the last one, but nothing lasts forever, life moves on, and other vague cliches to explain that it just sort of didn't ever happen again. I'm pretty nostalgic by nature, the past almost always looks better after it's happened than it did at the time, and a year since the last gig seems like a good opportunity to remember a couple of my favorite moments.</p>
+<p><strong>August, 2005</strong> – Grand Island, Nebraska:</p>
+<p>We had seen a battle of the bands go down in this place the year before, and naively thought &quot;let's come back next year and win this thing.&quot; Upon arrival, we discovered that there was only 1 other band competing – our confidence increased at this point, surely we, a band from Nowhere, Colorado, who had played about 2 gigs so far, would be miles better than whatever 'other' band had kindly agreed to open for us. We didn't have any gear in those days, so we spent the hour before the competition frantically trying to borrow drums and amps, then we arrived on stage and realized we'd forgotten to tune our instruments. Several awkward minutes passed as we got everything in tune, and we were ready to begin the set. First, however, I released a very loud, accidental burst of feedback – I wasn't used to the amp, you see. So, with the judges looking at their watches and covering their ears, and with a glare coming from the guy whose amp I'd borrowed that would definitely turn me to stone if I looked him in the eye, we played our first song.
+I won't speak for the other two, but I know my playing and singing were filled with wrong notes and missed words, it took about 4 minutes into the set for all of our confidence to be blown away. We stumbled through for about 20 minutes, and then took second place. Of 2. The judges comments that particularly stuck with me were &quot;I like your song titles&quot;, and &quot;you're on your way to being a good garage band.&quot;</p>
+<p><strong>October, 2005</strong> – Briggsdale, Colorado:</p>
+<p>This wasn't an Expiration Date show - we'd been asked to come out to a church to play some...well, church music, for an evening – we didn't do any of our songs, but what makes this stick in my mind was the soundcheck: We'd been toying around with a weird song I wasn't really sure about called Back2Earth – we made a run of it in the afternoon to warm up for the Briggsdale gig, and a run of notes came out of Will's bass for the first time that would come to define that song and our band for the next several years. I still dislike the lyric to that song intensely, whining about problems with girls is sort of the lowest common denominator of songwriting, it just always felt like we should have been better than that, but for whatever reason it was a favorite track from this moment until the end. Mainly, I think, because of Will's fantastic bass playing.</p>
+<p><strong>January, 2006</strong> – Ault, Colorado:</p>
+<p>Some late night in early 2006, I got an instant message (remember those?) from Will asking if his friend Mike could join the group. Now, in those days I was hesitant to have an opinion about anything in the band – as the front man and songwriter, I felt like I had too much control already, so any time any of the others expressed an opinion, I was pretty eager to do whatever they wanted. So it was agreed that Mike would join us at our next practice. I can't remember why I didn't bother to ask if Mike could play the guitar, but the first practice with him on board revealed that we had forgotten to check that detail. We kept him low in the mix for about 9 months, and he turned into quite a good guitar player – Mike is one of my closest friends these days but I still don't recommend jumping into someone's band without knowing what you're doing as the beginning of a friendship.</p>
+<p><strong>May, 2007</strong> – Toad's Tavern, Denver, Colorado:</p>
+<p>This was the only gig we ever filmed or recorded, and I was very pleasantly surprised that we sounded... like a band. I have no idea what has happened to the dvd in recent years, but it was a great night and a confirmation that maybe we were on to something. It seems silly now, but the other thing I recall about that night was how intimidating bars were when we were all under 21. Not only had we come into this place when it really felt like we shouldn't have, but all the people who were coming to see us weren't going to be drinking either... Not a great night for the Toad's bank account, but a wonderful night for us.</p>
+<p><strong>September, 2007-July, 2008</strong> – Blind Dog Studios, Longmont, Colorado:</p>
+<p>During several evenings and weekends over these months, we laid the tracks to an album that will probably never be released. It's almost totally done, but as we don't really exist anymore it feels a bit strange to think about working on it again now. A couple of things learned in the studio – first, in the studio, there are only opinions. On stage, it's a lot more objective – something either works in front of an audience, or it doesn't. If you're unsure, you can try it in front of a few different audiences, but eventually, you'll know. In the studio, you don't have any of that. You can have people you know there with you, you can have some friends listen to some rough mixes... but you only end up with one finished product, and however much you've worked on it, you only think it's great. You don't know. The other thing I discovered in the studio, was that people have opinions different to mine. In live situations, everything goes by so fast that you let most things go, but in the studio, if you play something that someone else thinks is awful... it can be listened to again, and everyone can weigh in. You discover very quickly whether or not you're on the same page musically in the studio, and we are all very different people.</p>
+<p><strong>March 12, 2010</strong> – Crabtree Brewery, Greeley Colorado:</p>
+<p>2009 and 2010 were pretty lean years for us, I think we played 3 gigs, of which this was the last. We'd made friends with some people who run some poetry slams in Greeley, and they asked us to play about 20 minutes between each of the rounds... so 5 sets over the course of a few hours – it made for a great evening. Because we'd played so little lately, I was expecting a disaster of a gig, but this worked out really well. They hadn't set up the main part of the brewery where they normally have gigs, because they didn't expect anyone to show up, so we were crammed into a corner by the bar.... which meant the place was pretty packed even if there were all of about 40 people there. It was a hot, loud room, of friends and fans who knew most of the words better than we did, and fittingly, the last song we played was It's the End of the World as We Know It (And I Feel Fine). We &quot;debuted&quot; a new song that night, funnily enough, so that audience was the first and last audience to hear 'I'm Not.' And now, We're Not.</p>
+]]></content:encoded>
+            <dc:creator>T</dc:creator>
+        </item>
+        <item>
+            <title><![CDATA[No title]]></title>
+            <description><![CDATA[<p><img src="/img/reeds.jpg" alt="Reeds"></p>
+<p>From just outside the Old Stove taproom on the water at Pike Place.</p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2020/02/19/reeds</link>
+            <guid isPermaLink="false">f8958de1-6dac-40c3-9c69-c8d0b1840cec</guid>
+            <category><![CDATA[photo]]></category>
+            <dc:creator><![CDATA[T]]></dc:creator>
+            <pubDate>Thu, 20 Feb 2020 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<p><img src="/img/reeds.jpg" alt="Reeds"></p>
+<p>From just outside the Old Stove taproom on the water at Pike Place.</p>
+]]></content:encoded>
+            <dc:creator>T</dc:creator>
+        </item>
+        <item>
+            <title><![CDATA[No title]]></title>
+            <description><![CDATA[<p><img src="/img/20200216-moons-and-boats.jpg" alt="The Moon Is A Jerk"></p>
+<p>The moon is super hard to photograph without much fancier gear than I have. But I really like this shot anyway.</p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2020/02/15/moon</link>
+            <guid isPermaLink="false">4d28d636-eb1f-43ce-a38e-b33cd93a6501</guid>
+            <category><![CDATA[photo]]></category>
+            <dc:creator><![CDATA[T]]></dc:creator>
+            <pubDate>Sun, 16 Feb 2020 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<p><img src="/img/20200216-moons-and-boats.jpg" alt="The Moon Is A Jerk"></p>
+<p>The moon is super hard to photograph without much fancier gear than I have. But I really like this shot anyway.</p>
+]]></content:encoded>
+            <dc:creator>T</dc:creator>
+        </item>
+        <item>
+            <title><![CDATA[Deer!]]></title>
+            <description><![CDATA[<p><img src="/img/20200216-snow-deer.jpg" alt="Deer"></p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2020/02/15/deer</link>
+            <guid isPermaLink="false">cba80023-0631-4a18-b55b-f547e44ab5e1</guid>
+            <category><![CDATA[photo]]></category>
+            <dc:creator><![CDATA[T]]></dc:creator>
+            <pubDate>Sun, 16 Feb 2020 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<p><img src="/img/20200216-snow-deer.jpg" alt="Deer"></p>
+]]></content:encoded>
+            <dc:creator>T</dc:creator>
+        </item>
+        <item>
+            <title><![CDATA[No title]]></title>
+            <description><![CDATA[<blockquote>
+<p>Pearl Jam will release their much-anticipated eleventh studio album, Gigaton, on Monkeywrench Records/ Republic Records on March 27, 2020 in the US.</p>
+</blockquote>
+<p><a href="https://pearljam.com/news/new-pearl-jam-album-gigaton-available-march-27">This</a> is very exciting news, although they've managed to book a US tour which not only includes no Seattle dates, but includes a Colorado show the week before I was going to be there anyway. I can't win.</p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2020/01/12/pearl-jam</link>
+            <guid isPermaLink="false">000bcdd1-7fa0-4a80-9068-d1d6058fabb4</guid>
+            <category><![CDATA[short]]></category>
+            <dc:creator><![CDATA[T]]></dc:creator>
+            <pubDate>Mon, 13 Jan 2020 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<blockquote>
+<p>Pearl Jam will release their much-anticipated eleventh studio album, Gigaton, on Monkeywrench Records/ Republic Records on March 27, 2020 in the US.</p>
+</blockquote>
+<p><a href="https://pearljam.com/news/new-pearl-jam-album-gigaton-available-march-27">This</a> is very exciting news, although they've managed to book a US tour which not only includes no Seattle dates, but includes a Colorado show the week before I was going to be there anyway. I can't win.</p>
+]]></content:encoded>
+            <dc:creator>T</dc:creator>
+        </item>
+        <item>
+            <title><![CDATA[No title]]></title>
+            <description><![CDATA[<blockquote>
+<p>Chivalry is not dead. But you soon will be.</p>
+</blockquote>
+<p>Troy, during an intense Starwhal battle.</p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2019/12/27/f726a8f5-4f67-4d86-b88e-51155dc4b177</link>
+            <guid isPermaLink="false">f726a8f5-4f67-4d86-b88e-51155dc4b177</guid>
+            <category><![CDATA[short]]></category>
+            <dc:creator><![CDATA[T]]></dc:creator>
+            <pubDate>Fri, 27 Dec 2019 12:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<blockquote>
+<p>Chivalry is not dead. But you soon will be.</p>
+</blockquote>
+<p>Troy, during an intense Starwhal battle.</p>
+]]></content:encoded>
+            <dc:creator>T</dc:creator>
+        </item>
+        <item>
+            <title><![CDATA[No title]]></title>
+            <description><![CDATA[<blockquote>
+<p>Chivalry is not dead. But you soon will be.</p>
+</blockquote>
+<p>Troy, during an intense Starwhal battle.</p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2019/12/26/chivalry</link>
+            <guid isPermaLink="false">c8258c3a-0a8a-4ce4-af34-6bcb9fe65741</guid>
+            <category><![CDATA[short]]></category>
+            <dc:creator><![CDATA[T]]></dc:creator>
+            <pubDate>Fri, 27 Dec 2019 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<blockquote>
+<p>Chivalry is not dead. But you soon will be.</p>
+</blockquote>
+<p>Troy, during an intense Starwhal battle.</p>
+]]></content:encoded>
+            <dc:creator>T</dc:creator>
+        </item>
+        <item>
+            <title><![CDATA[No title]]></title>
+            <description><![CDATA[<p>Twice today I've seen people carrying just-bought trees away from stores. I understand buying gifts in a panic on Christmas Eve, but buying the tree at last minute shows that:</p>
+<ul>
+<li>
+<p>You're hosting the family gathering, and</p>
+</li>
+<li>
+<p>You wish you weren't.</p>
+</li>
+</ul>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2019/12/23/tree</link>
+            <guid isPermaLink="false">df90931e-904d-46ea-b03e-93686a8affaf</guid>
+            <category><![CDATA[short]]></category>
+            <dc:creator><![CDATA[T]]></dc:creator>
+            <pubDate>Tue, 24 Dec 2019 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<p>Twice today I've seen people carrying just-bought trees away from stores. I understand buying gifts in a panic on Christmas Eve, but buying the tree at last minute shows that:</p>
+<ul>
+<li>
+<p>You're hosting the family gathering, and</p>
+</li>
+<li>
+<p>You wish you weren't.</p>
+</li>
+</ul>
+]]></content:encoded>
+            <dc:creator>T</dc:creator>
+        </item>
+        <item>
+            <title><![CDATA[Merry Christmas!]]></title>
+            <description><![CDATA[<p><img src="/img/20191219-christmas.jpg" alt="Merry Christmas"></p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2019/12/18/merry-christmas</link>
+            <guid isPermaLink="false">9d2244b3-20d9-4f01-a669-4e4a2ae059a7</guid>
+            <category><![CDATA[photo]]></category>
+            <dc:creator><![CDATA[T]]></dc:creator>
+            <pubDate>Thu, 19 Dec 2019 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<p><img src="/img/20191219-christmas.jpg" alt="Merry Christmas"></p>
+]]></content:encoded>
+            <dc:creator>T</dc:creator>
+        </item>
+        <item>
+            <title><![CDATA[Chickens]]></title>
+            <description><![CDATA[<p><img src="/img/20191215-chickens.jpg" alt="Chickens"></p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2019/12/14/chickens</link>
+            <guid isPermaLink="false">440147a3-bbc1-406e-a05c-64c5ea4dbbe3</guid>
+            <category><![CDATA[photo]]></category>
+            <dc:creator><![CDATA[T]]></dc:creator>
+            <pubDate>Sun, 15 Dec 2019 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<p><img src="/img/20191215-chickens.jpg" alt="Chickens"></p>
+]]></content:encoded>
+            <dc:creator>T</dc:creator>
+        </item>
+        <item>
+            <title><![CDATA[Winter in Ault]]></title>
+            <description><![CDATA[<p><img src="/img/20191214-winter-in-ault.jpg" alt="Winter in Ault"></p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2019/12/13/winter-in-ault</link>
+            <guid isPermaLink="false">567151ac-a25e-4ae7-a9c7-a2cad5740c05</guid>
+            <category><![CDATA[photo]]></category>
+            <dc:creator><![CDATA[T]]></dc:creator>
+            <pubDate>Sat, 14 Dec 2019 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<p><img src="/img/20191214-winter-in-ault.jpg" alt="Winter in Ault"></p>
+]]></content:encoded>
+            <dc:creator>T</dc:creator>
+        </item>
+        <item>
+            <title><![CDATA[Mount Storm King]]></title>
+            <description><![CDATA[<p><img src="/img/20191130-mount-storm-king.jpg" alt="Mount Storm King"></p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2019/11/29/mount-storm-king</link>
+            <guid isPermaLink="false">3a378429-de09-4546-9368-8d73b33488d4</guid>
+            <category><![CDATA[photo]]></category>
+            <dc:creator><![CDATA[T]]></dc:creator>
+            <pubDate>Sat, 30 Nov 2019 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<p><img src="/img/20191130-mount-storm-king.jpg" alt="Mount Storm King"></p>
+]]></content:encoded>
+            <dc:creator>T</dc:creator>
+        </item>
+        <item>
+            <title><![CDATA[Timber]]></title>
+            <description><![CDATA[<p><img src="/img/20191129-timber.jpg" alt="Timber"></p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2019/11/28/timber</link>
+            <guid isPermaLink="false">7f12701f-60d1-46ac-95ef-4b7591da0928</guid>
+            <category><![CDATA[photo]]></category>
+            <dc:creator><![CDATA[T]]></dc:creator>
+            <pubDate>Fri, 29 Nov 2019 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<p><img src="/img/20191129-timber.jpg" alt="Timber"></p>
+]]></content:encoded>
+            <dc:creator>T</dc:creator>
+        </item>
+        <item>
+            <title><![CDATA[Gasworks Views]]></title>
+            <description><![CDATA[<p><img src="/img/20191108-seattle-from-gasworks.jpg" alt="Seattle From Gas Works Park"></p>
+<p><img src="/img/20191108-needle-from-gasworks.jpg" alt="Space Needle From Gas Works Park"></p>
+<p><img src="/img/20191108-fall-from-gasworks.jpg" alt="Fall From Gas Works Park"></p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2019/11/07/gasworks-views</link>
+            <guid isPermaLink="false">88f1fce4-6084-4bb5-86b1-d1930f02cd26</guid>
+            <category><![CDATA[photo]]></category>
+            <dc:creator><![CDATA[T]]></dc:creator>
+            <pubDate>Fri, 08 Nov 2019 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<p><img src="/img/20191108-seattle-from-gasworks.jpg" alt="Seattle From Gas Works Park"></p>
+<p><img src="/img/20191108-needle-from-gasworks.jpg" alt="Space Needle From Gas Works Park"></p>
+<p><img src="/img/20191108-fall-from-gasworks.jpg" alt="Fall From Gas Works Park"></p>
+]]></content:encoded>
+            <dc:creator>T</dc:creator>
+        </item>
+        <item>
+            <title><![CDATA[Floater]]></title>
+            <description><![CDATA[<p><img src="/img/20191103-floater.jpg" alt="Floater"></p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2019/11/02/floater</link>
+            <guid isPermaLink="false">29612f72-e854-4285-95fc-7d070ce168d2</guid>
+            <category><![CDATA[photo]]></category>
+            <dc:creator><![CDATA[T]]></dc:creator>
+            <pubDate>Sun, 03 Nov 2019 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<p><img src="/img/20191103-floater.jpg" alt="Floater"></p>
+]]></content:encoded>
+            <dc:creator>T</dc:creator>
+        </item>
+        <item>
+            <title><![CDATA[Sunset from the Bremerton Ferry Terminal]]></title>
+            <description><![CDATA[<p><img src="/img/20191102-sunset-bremerton-terminal.jpg" alt="Sunset From the Bremerton Ferry Terminal"></p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2019/11/01/sunset-from-the-bremerton-ferry-terminal</link>
+            <guid isPermaLink="false">62414244-a919-41c7-bb6a-737f1952e90c</guid>
+            <category><![CDATA[photo]]></category>
+            <dc:creator><![CDATA[T]]></dc:creator>
+            <pubDate>Sat, 02 Nov 2019 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<p><img src="/img/20191102-sunset-bremerton-terminal.jpg" alt="Sunset From the Bremerton Ferry Terminal"></p>
+]]></content:encoded>
+            <dc:creator>T</dc:creator>
+        </item>
+    </channel>
+</rss>

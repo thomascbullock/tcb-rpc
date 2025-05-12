@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title><![CDATA[T - Photo Posts]]></title>
+        <description><![CDATA[Thomas C. Bullock's Blog - photo posts feed]]></description>
+        <link>https://thomascbullock.com</link>
+        <image>
+            <url>https://thomascbullock.com/img/logo.jpg</url>
+            <title>T - Photo Posts</title>
+            <link>https://thomascbullock.com</link>
+        </image>
+        <generator>RSS for Node</generator>
+        <lastBuildDate>Sat, 10 May 2025 23:31:37 GMT</lastBuildDate>
+        <atom:link href="https://thomascbullock.com/feeds/rss-photo.xml" rel="self" type="application/rss+xml"/>
+        <pubDate>Sat, 10 May 2025 23:31:37 GMT</pubDate>
+        <language><![CDATA[en]]></language>
+        <ttl>60</ttl>
+        <item>
+            <title><![CDATA[No title]]></title>
+            <description><![CDATA[<p><img src="/img/DSC03660.JPG" alt="DSC03660"></p>
+<p><img src="/img/IMG_2262.jpeg" alt="IMG 2262"></p>
+<p>It's a really good looking city.</p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2021/05/08/seattle-may-2021</link>
+            <guid isPermaLink="false">8dd18b1a-56fe-48c2-9a0c-85f4faa03b11</guid>
+            <category><![CDATA[photo]]></category>
+            <pubDate>Sun, 09 May 2021 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<p><img src="/img/DSC03660.JPG" alt="DSC03660"></p>
+<p><img src="/img/IMG_2262.jpeg" alt="IMG 2262"></p>
+<p>It's a really good looking city.</p>
+]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[No title]]></title>
+            <description><![CDATA[<p><img src="/img/20200516_before.jpg" alt="Before"></p>
+<p><img src="/img/20200516_after.jpg" alt="After"></p>
+<p>That took longer than I expected.</p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2020/05/14/wood</link>
+            <guid isPermaLink="false">023a2444-3af0-4490-8b7d-20e7e11aced2</guid>
+            <category><![CDATA[photo]]></category>
+            <pubDate>Fri, 15 May 2020 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<p><img src="/img/20200516_before.jpg" alt="Before"></p>
+<p><img src="/img/20200516_after.jpg" alt="After"></p>
+<p>That took longer than I expected.</p>
+]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[No title]]></title>
+            <description><![CDATA[<p><img src="/img/reeds.jpg" alt="Reeds"></p>
+<p>From just outside the Old Stove taproom on the water at Pike Place.</p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2020/02/19/reeds</link>
+            <guid isPermaLink="false">f8958de1-6dac-40c3-9c69-c8d0b1840cec</guid>
+            <category><![CDATA[photo]]></category>
+            <pubDate>Thu, 20 Feb 2020 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<p><img src="/img/reeds.jpg" alt="Reeds"></p>
+<p>From just outside the Old Stove taproom on the water at Pike Place.</p>
+]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[No title]]></title>
+            <description><![CDATA[<p><img src="/img/20200216-moons-and-boats.jpg" alt="The Moon Is A Jerk"></p>
+<p>The moon is super hard to photograph without much fancier gear than I have. But I really like this shot anyway.</p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2020/02/15/moon</link>
+            <guid isPermaLink="false">4d28d636-eb1f-43ce-a38e-b33cd93a6501</guid>
+            <category><![CDATA[photo]]></category>
+            <pubDate>Sun, 16 Feb 2020 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<p><img src="/img/20200216-moons-and-boats.jpg" alt="The Moon Is A Jerk"></p>
+<p>The moon is super hard to photograph without much fancier gear than I have. But I really like this shot anyway.</p>
+]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Deer!]]></title>
+            <description><![CDATA[<p><img src="/img/20200216-snow-deer.jpg" alt="Deer"></p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2020/02/15/deer</link>
+            <guid isPermaLink="false">cba80023-0631-4a18-b55b-f547e44ab5e1</guid>
+            <category><![CDATA[photo]]></category>
+            <pubDate>Sun, 16 Feb 2020 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<p><img src="/img/20200216-snow-deer.jpg" alt="Deer"></p>
+]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Merry Christmas!]]></title>
+            <description><![CDATA[<p><img src="/img/20191219-christmas.jpg" alt="Merry Christmas"></p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2019/12/18/merry-christmas</link>
+            <guid isPermaLink="false">9d2244b3-20d9-4f01-a669-4e4a2ae059a7</guid>
+            <category><![CDATA[photo]]></category>
+            <pubDate>Thu, 19 Dec 2019 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<p><img src="/img/20191219-christmas.jpg" alt="Merry Christmas"></p>
+]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Chickens]]></title>
+            <description><![CDATA[<p><img src="/img/20191215-chickens.jpg" alt="Chickens"></p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2019/12/14/chickens</link>
+            <guid isPermaLink="false">440147a3-bbc1-406e-a05c-64c5ea4dbbe3</guid>
+            <category><![CDATA[photo]]></category>
+            <pubDate>Sun, 15 Dec 2019 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<p><img src="/img/20191215-chickens.jpg" alt="Chickens"></p>
+]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Winter in Ault]]></title>
+            <description><![CDATA[<p><img src="/img/20191214-winter-in-ault.jpg" alt="Winter in Ault"></p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2019/12/13/winter-in-ault</link>
+            <guid isPermaLink="false">567151ac-a25e-4ae7-a9c7-a2cad5740c05</guid>
+            <category><![CDATA[photo]]></category>
+            <pubDate>Sat, 14 Dec 2019 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<p><img src="/img/20191214-winter-in-ault.jpg" alt="Winter in Ault"></p>
+]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Mount Storm King]]></title>
+            <description><![CDATA[<p><img src="/img/20191130-mount-storm-king.jpg" alt="Mount Storm King"></p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2019/11/29/mount-storm-king</link>
+            <guid isPermaLink="false">3a378429-de09-4546-9368-8d73b33488d4</guid>
+            <category><![CDATA[photo]]></category>
+            <pubDate>Sat, 30 Nov 2019 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<p><img src="/img/20191130-mount-storm-king.jpg" alt="Mount Storm King"></p>
+]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Timber]]></title>
+            <description><![CDATA[<p><img src="/img/20191129-timber.jpg" alt="Timber"></p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2019/11/28/timber</link>
+            <guid isPermaLink="false">7f12701f-60d1-46ac-95ef-4b7591da0928</guid>
+            <category><![CDATA[photo]]></category>
+            <pubDate>Fri, 29 Nov 2019 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<p><img src="/img/20191129-timber.jpg" alt="Timber"></p>
+]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Gasworks Views]]></title>
+            <description><![CDATA[<p><img src="/img/20191108-seattle-from-gasworks.jpg" alt="Seattle From Gas Works Park"></p>
+<p><img src="/img/20191108-needle-from-gasworks.jpg" alt="Space Needle From Gas Works Park"></p>
+<p><img src="/img/20191108-fall-from-gasworks.jpg" alt="Fall From Gas Works Park"></p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2019/11/07/gasworks-views</link>
+            <guid isPermaLink="false">88f1fce4-6084-4bb5-86b1-d1930f02cd26</guid>
+            <category><![CDATA[photo]]></category>
+            <pubDate>Fri, 08 Nov 2019 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<p><img src="/img/20191108-seattle-from-gasworks.jpg" alt="Seattle From Gas Works Park"></p>
+<p><img src="/img/20191108-needle-from-gasworks.jpg" alt="Space Needle From Gas Works Park"></p>
+<p><img src="/img/20191108-fall-from-gasworks.jpg" alt="Fall From Gas Works Park"></p>
+]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Floater]]></title>
+            <description><![CDATA[<p><img src="/img/20191103-floater.jpg" alt="Floater"></p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2019/11/02/floater</link>
+            <guid isPermaLink="false">29612f72-e854-4285-95fc-7d070ce168d2</guid>
+            <category><![CDATA[photo]]></category>
+            <pubDate>Sun, 03 Nov 2019 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<p><img src="/img/20191103-floater.jpg" alt="Floater"></p>
+]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Sunset from the Bremerton Ferry Terminal]]></title>
+            <description><![CDATA[<p><img src="/img/20191102-sunset-bremerton-terminal.jpg" alt="Sunset From the Bremerton Ferry Terminal"></p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2019/11/01/sunset-from-the-bremerton-ferry-terminal</link>
+            <guid isPermaLink="false">62414244-a919-41c7-bb6a-737f1952e90c</guid>
+            <category><![CDATA[photo]]></category>
+            <pubDate>Sat, 02 Nov 2019 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<p><img src="/img/20191102-sunset-bremerton-terminal.jpg" alt="Sunset From the Bremerton Ferry Terminal"></p>
+]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Sunrise from the Boat]]></title>
+            <description><![CDATA[<p><img src="/img/20191101-sunrise-from-the-boat.jpg" alt="Sunrise From the Boat"></p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2019/10/31/sunrise-from-the-boat</link>
+            <guid isPermaLink="false">1cc6ce76-323e-431b-b804-b33fd81f594b</guid>
+            <category><![CDATA[photo]]></category>
+            <pubDate>Fri, 01 Nov 2019 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<p><img src="/img/20191101-sunrise-from-the-boat.jpg" alt="Sunrise From the Boat"></p>
+]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Sunset from Belltown]]></title>
+            <description><![CDATA[<p><img src="/img/20191031-sunset-from-belltown.jpg" alt="Sunset From Belltown"></p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2019/10/30/sunset-from-belltown</link>
+            <guid isPermaLink="false">447abf8f-42bc-4c85-9792-2ebe94c55bc7</guid>
+            <category><![CDATA[photo]]></category>
+            <pubDate>Thu, 31 Oct 2019 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<p><img src="/img/20191031-sunset-from-belltown.jpg" alt="Sunset From Belltown"></p>
+]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Snow Dog]]></title>
+            <description><![CDATA[<p><img src="/img/20191215-maverick.jpg" alt="Maverick"></p>
+]]></description>
+            <link>https:/thomascbullock.com/posts/2012/12/14/snow-dog</link>
+            <guid isPermaLink="false">07436307-15c9-4194-80f8-888aae4e42c1</guid>
+            <category><![CDATA[photo]]></category>
+            <pubDate>Sat, 15 Dec 2012 00:00:00 GMT</pubDate>
+            <content:encoded><![CDATA[<p><img src="/img/20191215-maverick.jpg" alt="Maverick"></p>
+]]></content:encoded>
+        </item>
+    </channel>
+</rss>

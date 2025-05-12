@@ -1,40 +1,69 @@
+/**
+ * Implementation of metaWeblog.getRecentPosts method
+ * Gets a list of recent posts
+ */
 const auth = require("./auth").auth;
 const authError = require("./auth").authError;
 const Postmaster = require("./postMaster");
 const path = require("path");
 
 exports.getRecentPosts = async function (params) {
-  if (!auth(params)) {
-    return authError();
-  }
-
-  const postmaster = new Postmaster();
-  await postmaster.build("editor");
-
-  const postArray = [];
-  for (i = 0; i < postmaster.all.length; i++) {
-    const category = postmaster.all[i].type;
-    const categoryArr = [];
-    categoryArr.push(category);
-    const postId = `${postmaster.all[i].dateTime.replace(/-/g, "")}-${
-      postmaster.all[i].slug
-    }`;
-    const postToPush = {
-      dateCreated: postmaster.all[i].dateTime,
-      description: postmaster.all[i].body,
-      title: postmaster.all[i].title,
-      categories: categoryArr,
-      postid: postId,
-      link: path.join(
-        "https://thomascbullock.com/posts",
-        postmaster.all[i].path,
-        postmaster.all[i].slug
-      ),
-      slug: postmaster.all[i].slug,
-      dateTime: postmaster.all[i].dateTime,
+  try {
+    // Check authentication
+    if (!auth(params)) {
+      return authError();
+    }
+    
+    // Get number of posts to return (default 10)
+    const numberOfPosts = params[3] || 10;
+    
+    // Load all posts
+    const postmaster = new Postmaster();
+    await postmaster.build("editor");
+    
+    // Format posts for API response
+    const postArray = [];
+    
+    // Loop through posts (up to the requested number)
+    const postsToProcess = Math.min(postmaster.all.length, numberOfPosts);
+    
+    for (let i = 0; i < postsToProcess; i++) {
+      const post = postmaster.all[i];
+      
+      // Create categories array
+      const categoryArr = [post.type];
+      
+      const postToPush = {
+        // Standard MetaWeblog API fields
+        postid: post.postid,
+        dateCreated: post.dateCreated,
+        title: post.title,
+        description: post.body,
+        categories: categoryArr,
+        link: path.join(
+          "https://thomascbullock.com/posts",
+          post.path,
+          post.slug
+        ),
+        permalink: path.join(
+          "https://thomascbullock.com/posts",
+          post.path,
+          post.slug
+        ),
+        // Additional fields
+        slug: post.slug,
+        wp_slug: post.slug
+      };
+      
+      postArray.push(postToPush);
+    }
+    
+    return postArray;
+  } catch (error) {
+    console.error(`Error getting recent posts: ${error.message}`);
+    return {
+      faultCode: 500,
+      faultString: `Error getting recent posts: ${error.message}`
     };
-    postArray.push(postToPush);
   }
-
-  return postArray;
 };

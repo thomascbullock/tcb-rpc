@@ -21,7 +21,40 @@ class Page {
                 <link rel="stylesheet" href="/css/style.css" />
                 <link rel="shortcut icon" href="/img/logo.jpg" />
                 <link rel="EditURI" href="https://thomascbullock.com/xmlrpc" />
-                <title>${this.title}</title>
+                
+                <!-- RSS Feed Links -->
+                <link
+                    rel="alternate"
+                    type="application/rss+xml"
+                    title="All posts feed"
+                    href="https://thomascbullock.com/feeds/rss-all.xml"
+                />
+                <link
+                    rel="alternate"
+                    type="application/rss+xml"
+                    title="Photo posts feed"
+                    href="https://thomascbullock.com/feeds/rss-photo.xml"
+                />
+                <link
+                    rel="alternate"
+                    type="application/rss+xml"
+                    title="Long posts feed"
+                    href="https://thomascbullock.com/feeds/rss-long.xml"
+                />
+                <link
+                    rel="alternate"
+                    type="application/rss+xml"
+                    title="Short posts feed"
+                    href="https://thomascbullock.com/feeds/rss-short.xml"
+                />
+                <link
+                    rel="alternate"
+                    type="application/feed+json"
+                    title="JSON Feed"
+                    href="https://thomascbullock.com/feeds/feed.json"
+                />
+                
+                <title>${this.title || 'T'}</title>
             </head>
             <body>
                 <header id="heading">
@@ -31,6 +64,7 @@ class Page {
                         <a href="/posts/short/short">Short</a>
                         <a href="/posts/photo/photo">Photo</a>
                         <a href="/posts/about">About</a>
+                        <a href="/feeds/index.xml">RSS</a>
                     </nav>
                 </header>${this.bodyBuilder()}
                 
@@ -48,6 +82,15 @@ class Page {
 
     pageRendered = `${pageRendered}
                 </nav>
+                <div class="rss-links">
+                    <p>Subscribe: 
+                        <a href="/feeds/index.xml">RSS</a> | 
+                        <a href="/feeds/rss-all.xml">All</a> | 
+                        <a href="/feeds/rss-long.xml">Long</a> | 
+                        <a href="/feeds/rss-short.xml">Short</a> | 
+                        <a href="/feeds/rss-photo.xml">Photo</a>
+                    </p>
+                </div>
             </footer>    
             </body>
         </html>`;
@@ -63,11 +106,28 @@ class Page {
   bodyBuilder() {
     let body = '';
     for (let bodyCount = 0; bodyCount < this.bodyBag.length; bodyCount++) {
-      let singleBody = `<article><h1><a href=${this.bodyBag[bodyCount].href}>${this.bodyBag[bodyCount].title}</a></h1>`;
+      // Handle title display - keep it blank if empty (instead of "Untitled")
+      let titleDisplay = '';
+      if (this.bodyBag[bodyCount].title) {
+        titleDisplay = this.bodyBag[bodyCount].title;
+      }
+      
+      let singleBody = `<article><h1><a href=${this.bodyBag[bodyCount].href}>${titleDisplay}</a></h1>`;
+      
       if (!this.bodyBag[bodyCount].noDate) {
-        const readableDate = new moment(this.bodyBag[bodyCount].dateTime).format('MMMM Do YYYY');
+        // Use dateCreated if available, otherwise fall back to dateTime
+        let displayDate;
+        if (this.bodyBag[bodyCount].dateCreated) {
+          displayDate = new Date(this.bodyBag[bodyCount].dateCreated);
+        } else if (this.bodyBag[bodyCount].dateTime) {
+          displayDate = new Date(this.bodyBag[bodyCount].dateTime);
+        } else {
+          displayDate = new Date(); // Fallback to current date
+        }
+        
+        const readableDate = moment(displayDate).format('MMMM Do YYYY');
         singleBody = singleBody += `<p class="date-time">
-        <time datetime="${this.bodyBag[bodyCount].dateTime}" pubdate="pubdate">${readableDate}</time></p>`;
+        <time datetime="${moment(displayDate).format('YYYY-MM-DD')}" pubdate="pubdate">${readableDate}</time></p>`;
       }
       singleBody += `${this.bodyBag[bodyCount].body}</article>`;
       body += singleBody;

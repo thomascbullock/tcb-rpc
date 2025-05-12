@@ -1,0 +1,14 @@
+{
+  "watch": [
+    "*.js",
+    "*.json"
+  ],
+  "ignore": [
+    "build/**/*",
+    "node_modules/**/*",
+    "test/**/*",
+    "*.test.js",
+    "*.md"
+  ],
+  "ext": "js,json,css"
+}
