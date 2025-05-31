@@ -2,7 +2,12 @@
 const fs = require("fs-extra");
 const path = require("path");
 const moment = require("moment");
-const md = require("markdown-it")();
+// Enable HTML in markdown-it for proper image rendering
+const md = require("markdown-it")({
+  html: true,        // Enable HTML tags in source
+  linkify: true,     // Autoconvert URL-like text to links
+  typographer: true  // Enable smart quotes and other typographic replacements
+});
 const Postmaster = require("./postMaster");
 const Page = require("./page_template_new");
 const RSSGenerator = require('./rssGenerator');

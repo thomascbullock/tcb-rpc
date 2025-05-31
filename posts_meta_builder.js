@@ -4,7 +4,13 @@
  * with front matter, and builds collections of posts
  */
 
-const md = require("markdown-it")();
+// Enable HTML in markdown-it for proper image rendering
+const md = require("markdown-it")({
+  html: true,        // Enable HTML tags in source
+  linkify: true,     // Autoconvert URL-like text to links
+  typographer: true  // Enable smart quotes and other typographic replacements
+});
+
 const fs = require("fs-extra");
 const path = require("path");
 const gm = require("gray-matter");
@@ -42,6 +48,7 @@ class PostFromFile {
       if (this.mode === "editor") {
         mdToReturn = postJson.content;
       } else {
+        // Render markdown with HTML support enabled
         mdToReturn = md.render(postJson.content);
       }
       
