@@ -106,30 +106,47 @@ class Page {
   bodyBuilder() {
     let body = '';
     for (let bodyCount = 0; bodyCount < this.bodyBag.length; bodyCount++) {
-      // Handle title display - keep it blank if empty (instead of "Untitled")
-      let titleDisplay = '';
-      if (this.bodyBag[bodyCount].title) {
-        titleDisplay = this.bodyBag[bodyCount].title;
+      const post = this.bodyBag[bodyCount];
+      
+      // Determine if this post has a title
+      const hasTitle = post.title && post.title.trim() !== '';
+      
+      // Build the title/header section
+      let titleSection = '';
+      if (hasTitle) {
+        // Post has a title - use it as the main link
+        titleSection = `<h1><a href="${post.href}">${post.title}</a></h1>`;
+      } else {
+        // Post has no title - show empty h1 (glyph will be next to date)
+        titleSection = `<h1 class="untitled-post"></h1>`;
       }
       
-      let singleBody = `<article><h1><a href=${this.bodyBag[bodyCount].href}>${titleDisplay}</a></h1>`;
+      let singleBody = `<article>${titleSection}`;
       
-      if (!this.bodyBag[bodyCount].noDate) {
+      // Add date if not explicitly disabled
+      if (!post.noDate) {
         // Use dateCreated if available, otherwise fall back to dateTime
         let displayDate;
-        if (this.bodyBag[bodyCount].dateCreated) {
-          displayDate = new Date(this.bodyBag[bodyCount].dateCreated);
-        } else if (this.bodyBag[bodyCount].dateTime) {
-          displayDate = new Date(this.bodyBag[bodyCount].dateTime);
+        if (post.dateCreated) {
+          displayDate = new Date(post.dateCreated);
+        } else if (post.dateTime) {
+          displayDate = new Date(post.dateTime);
         } else {
           displayDate = new Date(); // Fallback to current date
         }
         
         const readableDate = moment(displayDate).format('MMMM Do YYYY');
-        singleBody = singleBody += `<p class="date-time">
-        <time datetime="${moment(displayDate).format('YYYY-MM-DD')}" pubdate="pubdate">${readableDate}</time></p>`;
+        
+        // Add permalink glyph for untitled posts next to the date
+        const permalinkGlyph = !hasTitle ? 
+          `<a href="${post.href}" class="permalink-glyph" title="View this post" aria-label="Permalink to this post">∞</a>` : 
+          '';
+        
+        singleBody += `<p class="date-time">
+        <time datetime="${moment(displayDate).format('YYYY-MM-DD')}" pubdate="pubdate">${readableDate}</time>${permalinkGlyph}</p>`;
       }
-      singleBody += `${this.bodyBag[bodyCount].body}</article>`;
+      
+      singleBody += `${post.body}</article>`;
       body += singleBody;
     }
     return body;

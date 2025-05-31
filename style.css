@@ -23,6 +23,7 @@ body {
     margin-right: auto;
     height: 10vw;
     width: 10vw;
+    box-shadow: none;
 }
 
 #heading nav {
@@ -68,8 +69,59 @@ article h1 a {
     text-decoration-line: none;
 }
 
+/* Handle empty titles gracefully */
+article h1:empty {
+    display: none;
+}
+
+/* Styling for untitled posts with permalink glyph */
+article h1.untitled-post {
+    display: none; /* Hide empty h1 for untitled posts */
+}
+
+.permalink-glyph {
+    display: inline-block;
+    font-size: 1em;
+    color: #999;
+    text-decoration: none;
+    padding: 0.2em 0.4em;
+    margin-left: 0.5em;
+    border-radius: 3px;
+    transition: all 0.2s ease;
+    vertical-align: middle;
+}
+
+.permalink-glyph:hover {
+    color: #222222;
+    background-color: #f5f5f5;
+}
+
+.permalink-glyph:focus {
+    outline: 2px solid #222222;
+    outline-offset: 2px;
+}
+
+/* Special styling for photo posts */
+.photo-post article h1 {
+    font-size: 1.2em;
+    color: #666;
+    font-style: italic;
+}
+
+/* Special styling for short posts */
+.short-post article {
+    border-left: 3px solid #ddd;
+    padding-left: 1em;
+}
+
+.short-post article h1 {
+    font-size: 1.2em;
+    color: #666;
+    font-style: italic;
+}
+
 article h2 {
-    font-size: 1.25 em;
+    font-size: 1.25em;
     font-weight: bold;
     padding: .5em 0;
 }
@@ -101,19 +153,29 @@ article time {
 
 article ul {
     display: block;
-list-style-type: disc;
-margin-top: 1em;
-margin-bottom: 1 em;
-margin-left: 0;
-margin-right: 0;
-padding-left: 40px;
+    list-style-type: disc;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 40px;
 }
 
+/* Enhanced image styling for photo posts */
 img {
     max-width: 100%;
     display: block;
     height: auto;
     margin: auto;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Special treatment for images in photo posts */
+.photo-post img {
+    margin: 2em auto;
+    max-width: 100%;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 blockquote {
@@ -121,11 +183,11 @@ blockquote {
     border-left: 15px solid #ccc;
     margin: 1.5em 15px;
     padding: 0.5em 15px;
-  }
+}
 
-  blockquote p {
+blockquote p {
     display: inline;
-  }
+}
 
 #footer nav {
     display: block;  
@@ -148,51 +210,6 @@ blockquote {
    color: #fff;
 }
 
-/* 500-pixel layout for smaller screens */
-@media (max-width: 800px) {
-    article { width: calc(100vw - 30px); }
-    #heading nav {
-        line-height: 2em;
-        font-size: .75em;
-    }
-    
-    #footer nav {
-		font-size: .75em;
-    }
-}
-
-/* 500-pixel layout for smaller screens */
-@media (max-width: 680px) {
-    article { width: calc(100vw - 30px); }
-    #heading nav {
-        line-height: 2em;
-        font-size: .75em;
-    }
-    
-    #footer nav {
-		font-size: .75em;
-    }
-}
-
-/* 500-pixel layout for smaller screens */
-@media (max-width: 570px) {
-    article { width: calc(100vw - 30px); }
-    article h1 {
-        font-size: 1em;
-    }
-    article p {
-        font-size: .75em;
-    }
-    #heading nav {
-        line-height: 2em;
-        font-size: .5em;
-    }
-    
-        #footer nav {
-		font-size: .5em;
-    }
-}
-
 /* RSS links in footer */
 .rss-links {
     text-align: center;
@@ -206,3 +223,111 @@ blockquote {
     text-decoration: none;
     border-bottom: 1px dotted #222222;
     padding-bottom: 1px;
+}
+
+/* Permalink indicator */
+.permalink-info {
+    text-align: center;
+    font-size: 0.85em;
+    color: #999;
+    margin-bottom: 1em;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.5em;
+}
+
+/* Post type indicators */
+.post-type-indicator {
+    display: inline-block;
+    background: #f5f5f5;
+    padding: 0.2em 0.5em;
+    border-radius: 3px;
+    font-size: 0.8em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.post-type-photo {
+    background: #e8f5e8;
+    color: #2d5d2d;
+}
+
+.post-type-short {
+    background: #e8f0ff;
+    color: #1a4480;
+}
+
+.post-type-long {
+    background: #fff5e8;
+    color: #804d1a;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 800px) {
+    article { 
+        width: calc(100vw - 30px); 
+    }
+    
+    #heading nav {
+        line-height: 2em;
+        font-size: .75em;
+    }
+    
+    #footer nav {
+        font-size: .75em;
+    }
+    
+    /* Adjust photo margins on mobile */
+    .photo-post img {
+        margin: 1.5em auto;
+    }
+    
+    /* Make permalink glyph more touch-friendly on mobile */
+    .permalink-glyph {
+        padding: 0.3em 0.5em;
+        font-size: 1.1em;
+    }
+}
+
+@media (max-width: 680px) {
+    article { 
+        width: calc(100vw - 30px); 
+    }
+    
+    #heading nav {
+        line-height: 2em;
+        font-size: .75em;
+    }
+    
+    #footer nav {
+        font-size: .75em;
+    }
+}
+
+@media (max-width: 570px) {
+    article { 
+        width: calc(100vw - 30px); 
+    }
+    
+    article h1 {
+        font-size: 1em;
+    }
+    
+    article p {
+        font-size: .75em;
+    }
+    
+    #heading nav {
+        line-height: 2em;
+        font-size: .5em;
+    }
+    
+    #footer nav {
+        font-size: .5em;
+    }
+    
+    /* Smaller post type indicators on mobile */
+    .post-type-indicator {
+        font-size: 0.7em;
+        padding: 0.1em 0.3em;
+    }
+}

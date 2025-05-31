@@ -8,12 +8,12 @@ const Page = require("./page_template_new");
 const RSSGenerator = require('./rssGenerator');
 
 const outputPath = "./build";
-
 const pageTypes = ["long", "short", "photo", "all"];
 
 class Website {
   constructor() {
     this.postmaster = new Postmaster();
+    this.createdPermalinks = []; // Track created permalinks for debugging
   }
 
   async setup() {
@@ -34,164 +34,210 @@ class Website {
 
     await fs.copyFile("reset.css", path.join(outputPath, "css", "reset.css"));
     await fs.copyFile("style.css", path.join(outputPath, "css", "style.css"));
-    for (const imgFile of fs.readdirSync("img")) {
-      await fs.copyFile(
-        path.join("img", imgFile),
-        path.join(outputPath, "img", imgFile)
-      );
+    
+    // Copy all images
+    if (await fs.pathExists("img")) {
+      for (const imgFile of fs.readdirSync("img")) {
+        await fs.copyFile(
+          path.join("img", imgFile),
+          path.join(outputPath, "img", imgFile)
+        );
+      }
     }
+    
     await this.postmaster.build();
   }
 
+  /**
+   * Enhanced buildSinglePages method with better permalink support
+   * Creates individual pages for ALL post types including photos and short posts
+   */
   async buildSinglePages() {
-    let i;
-    for (i = 0; i < this.postmaster.all.length; i++) {
-      let footerPrevious;
-      let footerNext;
-      let singlePostPath;
-
-      //make sure the dir exists
-      console.log('ensureDir', path.join(outputPath, 'posts', this.postmaster.all[i].path));
-      await fs.ensureDir(path.join(outputPath, 'posts', this.postmaster.all[i].path));
-
-      // write the indivdual Page
-
-      const singleBodyBag = [
-        {
-          title: this.postmaster.all[i].title,
-          dateCreated: this.postmaster.all[i].dateCreated, // Use dateCreated
-          dateTime: this.postmaster.all[i].dateTime,       // Include dateTime as fallback
-          body: this.postmaster.all[i].body,
-          href: path.join(
-            "/posts",
-            this.postmaster.all[i].path,
-            this.postmaster.all[i].slug
-          ),
-        },
-      ];
+    console.log(`Building individual permalinks for ${this.postmaster.all.length} posts...`);
+    
+    for (let i = 0; i < this.postmaster.all.length; i++) {
+      const currentPost = this.postmaster.all[i];
+      
+      // Create directory structure based on date path
+      const postDir = path.join(outputPath, 'posts', currentPost.path);
+      await fs.ensureDir(postDir);
+      
+      console.log(`Building permalink for ${currentPost.type} post: ${currentPost.slug}`);
+      
+      // Navigation setup
+      let footerPrevious, footerNext;
+      
       if (i === 0) {
-        footerNext = `${path.join(
-          "/posts",
-          this.postmaster.all[i + 1].path,
-          this.postmaster.all[i + 1].slug
-        )}.html`;
+        // First post - only show next
+        if (this.postmaster.all.length > 1) {
+          footerNext = path.join(
+            "/posts",
+            this.postmaster.all[i + 1].path,
+            this.postmaster.all[i + 1].slug
+          );
+        }
       } else if (i > 0 && i < this.postmaster.all.length - 1) {
-        footerPrevious = `${path.join(
+        // Middle posts - show both previous and next
+        footerPrevious = path.join(
           "/posts",
           this.postmaster.all[i - 1].path,
           this.postmaster.all[i - 1].slug
-        )}.html`;
-        footerNext = `${path.join(
+        );
+        footerNext = path.join(
           "/posts",
           this.postmaster.all[i + 1].path,
           this.postmaster.all[i + 1].slug
-        )}.html`;
+        );
       } else {
-        footerPrevious = `${path.join(
+        // Last post - only show previous
+        footerPrevious = path.join(
           "/posts",
           this.postmaster.all[i - 1].path,
           this.postmaster.all[i - 1].slug
-        )}.html`;
+        );
       }
 
+      // Create body bag for the individual post
+      const singleBodyBag = [
+        {
+          title: currentPost.title,
+          dateCreated: currentPost.dateCreated,
+          dateTime: currentPost.dateTime,
+          body: currentPost.body,
+          href: path.join("/posts", currentPost.path, currentPost.slug),
+        },
+      ];
+
+      // Determine page title
+      let pageTitle = 'T'; // Default
+      if (currentPost.title) {
+        pageTitle = currentPost.title;
+      } else {
+        // Provide meaningful titles for posts without explicit titles
+        const postDate = moment(currentPost.dateCreated || currentPost.dateTime).format('MMMM Do, YYYY');
+        switch (currentPost.type) {
+          case 'photo':
+            pageTitle = `Photo from ${postDate}`;
+            break;
+          case 'short':
+            pageTitle = `Post from ${postDate}`;
+            break;
+          default:
+            pageTitle = `Post from ${postDate}`;
+        }
+      }
+
+      // Create the individual post page
       const singlePage = new Page({
-        title: this.postmaster.all[i].title,
+        title: pageTitle,
         bodyBag: singleBodyBag,
         footerPrevious,
         footerNext,
-        fileName: this.postmaster.all[i].slug,
-        fileDir: path.join(outputPath, "posts", this.postmaster.all[i].path),
+        fileName: currentPost.slug,
+        fileDir: postDir,
       });
+      
       await singlePage.savePage();
+      
+      // Track created permalink for verification
+      const permalinkPath = path.join(postDir, `${currentPost.slug}.html`);
+      const urlPath = path.join("/posts", currentPost.path, currentPost.slug);
+      
+      this.createdPermalinks.push({
+        type: currentPost.type,
+        title: currentPost.title || '(no title)',
+        filePath: permalinkPath,
+        urlPath: urlPath,
+        slug: currentPost.slug
+      });
+      
+      console.log(`✓ Created ${currentPost.type} permalink: ${urlPath}`);
     }
+    
+    // Summary of created permalinks
+    console.log('\n=== PERMALINK SUMMARY ===');
+    const typeCount = this.createdPermalinks.reduce((acc, link) => {
+      acc[link.type] = (acc[link.type] || 0) + 1;
+      return acc;
+    }, {});
+    
+    Object.entries(typeCount).forEach(([type, count]) => {
+      console.log(`${type}: ${count} permalinks created`);
+    });
+    
+    // Show some examples
+    console.log('\n=== EXAMPLE PERMALINKS ===');
+    ['photo', 'short', 'long'].forEach(type => {
+      const example = this.createdPermalinks.find(link => link.type === type);
+      if (example) {
+        console.log(`${type}: ${example.urlPath}`);
+      }
+    });
   }
 
+  /**
+   * Enhanced buildMultiPages with improved post type handling
+   */
   async buildMultiPages() {
     let archive = "";
-    for (
-      let pageTypeCounter = 0;
-      pageTypeCounter < pageTypes.length;
-      pageTypeCounter++
-    ) {
+    
+    for (let pageTypeCounter = 0; pageTypeCounter < pageTypes.length; pageTypeCounter++) {
       const postType = pageTypes[pageTypeCounter];
       let bodyBag = [];
       let pagesCounter = 0;
       let postsCounter = 0;
 
-      if (this.postmaster[postType]) {
-        console.log("building: ", postType);
-        for (
-          let totalPostCounter = 0;
-          totalPostCounter < this.postmaster[postType].length;
-          totalPostCounter++
-        ) {
+      if (this.postmaster[postType] && this.postmaster[postType].length > 0) {
+        console.log(`Building ${postType} collection pages...`);
+        
+        for (let totalPostCounter = 0; totalPostCounter < this.postmaster[postType].length; totalPostCounter++) {
+          const currentPost = this.postmaster[postType][totalPostCounter];
+          
           bodyBag.push({
-            title: this.postmaster[postType][totalPostCounter].title,
-            dateCreated: this.postmaster[postType][totalPostCounter].dateCreated, // Use dateCreated
-            dateTime: this.postmaster[postType][totalPostCounter].dateTime,       // Include dateTime as fallback
-            body: this.postmaster[postType][totalPostCounter].body,
-            href: path.join(
-              "/posts",
-              this.postmaster[postType][totalPostCounter].path,
-              this.postmaster[postType][totalPostCounter].slug
-            ),
+            title: currentPost.title,
+            dateCreated: currentPost.dateCreated,
+            dateTime: currentPost.dateTime,
+            body: currentPost.body,
+            href: path.join("/posts", currentPost.path, currentPost.slug), // Link to individual permalink
           });
 
-          if (
-            postType === "all" &&
-            this.postmaster[postType][totalPostCounter].type !== "short" &&
-            this.postmaster[postType][totalPostCounter].title !== ""
-          ) {
-            // Use dateCreated if available, otherwise fall back to dateTime
+          // Build archive (only for titled posts that aren't short posts)
+          if (postType === "all" && currentPost.type !== "short" && currentPost.title !== "") {
             let displayDate;
-            if (this.postmaster[postType][totalPostCounter].dateCreated) {
-              displayDate = new Date(this.postmaster[postType][totalPostCounter].dateCreated);
-            } else if (this.postmaster[postType][totalPostCounter].dateTime) {
-              displayDate = new Date(this.postmaster[postType][totalPostCounter].dateTime);
+            if (currentPost.dateCreated) {
+              displayDate = new Date(currentPost.dateCreated);
+            } else if (currentPost.dateTime) {
+              displayDate = new Date(currentPost.dateTime);
             } else {
               displayDate = new Date();
             }
             
-            // Use empty string for posts without titles - not "Untitled"
-            const postTitle = this.postmaster[postType][totalPostCounter].title || '';
-            
-            archive =
-              archive +
-              `${moment(displayDate).format("MMMM Do YYYY")}: [${postTitle}](${path.join(
-                "/posts",
-                this.postmaster[postType][totalPostCounter].path,
-                this.postmaster[postType][totalPostCounter].slug
-              )})\n\n`;
+            const postTitle = currentPost.title || '';
+            archive += `${moment(displayDate).format("MMMM Do YYYY")}: [${postTitle}](${path.join("/posts", currentPost.path, currentPost.slug)})\n\n`;
           }
 
-          if (
-            postsCounter === 10 ||
-            totalPostCounter + 1 === this.postmaster[postType].length
-          ) {
-            let footerNext;
-            let footerPrevious;
-            let fileName;
+          // Create page when we hit 10 posts or reach the end
+          if (postsCounter === 9 || totalPostCounter + 1 === this.postmaster[postType].length) {
+            let footerNext, footerPrevious, fileName;
 
             if (pagesCounter === 0) {
               if (this.postmaster[postType].length > 10) {
-                footerPrevious = `/posts/${postType}/${pagesCounter + 1}`;
+                footerPrevious = `/posts/${postType}/1`;
               }
               fileName = `${postType}`;
-            } else if (pagesCounter === 1) {
-              footerPrevious = `/posts/${postType}/${pagesCounter + 1}`;
-              footerNext = `/posts/${postType}/${postType}`;
-              fileName = `${pagesCounter}`;
-            } else if (
-              pagesCounter > 1 &&
-              pagesCounter < this.postmaster[postType].length / 10
-            ) {
-              footerPrevious = `/posts/${postType}/${pagesCounter + 1}`;
-              footerNext = `/posts/${postType}/${pagesCounter - 1}`;
-              fileName = `${pagesCounter}`;
             } else {
-              footerNext = `/posts/${postType}/${pagesCounter - 1}`;
+              // Handle pagination
+              if (totalPostCounter + 1 < this.postmaster[postType].length) {
+                footerPrevious = `/posts/${postType}/${pagesCounter + 1}`;
+              }
+              if (pagesCounter === 1) {
+                footerNext = `/posts/${postType}/${postType}`;
+              } else if (pagesCounter > 1) {
+                footerNext = `/posts/${postType}/${pagesCounter - 1}`;
+              }
               fileName = `${pagesCounter}`;
             }
+
             const pageOfPosts = new Page({
               title: "T",
               bodyBag,
@@ -200,7 +246,10 @@ class Website {
               fileName,
               fileDir: path.join(outputPath, "posts", postType),
             });
+            
             await pageOfPosts.savePage();
+            console.log(`✓ Created ${postType} page ${fileName} with ${bodyBag.length} posts`);
+            
             postsCounter = 0;
             pagesCounter++;
             bodyBag = [];
@@ -210,6 +259,8 @@ class Website {
         }
       }
     }
+
+    // Create archive page
     const archiveBag = [
       {
         title: "Archive",
@@ -219,13 +270,16 @@ class Website {
         noDate: true,
       },
     ];
+    
     const archivePage = new Page({
       title: "Archive",
       bodyBag: archiveBag,
       fileName: "archive",
       fileDir: path.join(outputPath, "posts"),
     });
+    
     await archivePage.savePage();
+    console.log("✓ Created archive page");
   }
 
   async buildAboutPage() {
@@ -249,27 +303,23 @@ class Website {
     });
 
     await aboutPage.savePage();
+    console.log("✓ Created about page");
   }
   
   async buildRSSFeeds() {
     try {
       console.log('Generating RSS feeds...');
       
-      // Create RSS generator
       const rssGenerator = new RSSGenerator({
         siteUrl: 'https://thomascbullock.com',
         siteTitle: 'T',
         siteDescription: 'Thomas C. Bullock\'s Blog',
         outputDir: path.join(outputPath, 'feeds'),
         postmaster: this.postmaster,
-        // Pass option to keep titles blank (not "Untitled")
         useBlankTitles: true
       });
       
-      // Generate all feeds
       const result = await rssGenerator.generateAllFeeds();
-      
-      // Also generate JSON Feed
       const jsonFeedPath = await rssGenerator.generateJsonFeed();
       
       console.log('RSS feeds generated:');
@@ -299,15 +349,24 @@ RedirectMatch 301 ^/feeds/photo/?$ /feeds/rss-photo.xml
 
   async orchestrate() {
     await this.setup();
-    console.log("setup complete");
+    console.log("✓ Setup complete");
+    
     await this.buildSinglePages();
-    console.log("single pages complete");
+    console.log("✓ Individual permalinks complete");
+    
     await this.buildMultiPages();
-    console.log("multi pages complete");
+    console.log("✓ Collection pages complete");
+    
     await this.buildAboutPage();
-    console.log("about complete");
+    console.log("✓ About page complete");
+    
     await this.buildRSSFeeds();
-    console.log('RSS feeds complete');
+    console.log('✓ RSS feeds complete');
+    
+    // Final summary
+    console.log('\n=== BUILD COMPLETE ===');
+    console.log(`Total permalinks created: ${this.createdPermalinks.length}`);
+    console.log('All post types (including photos and short posts) now have individual permalinks');
   }
 }
 
