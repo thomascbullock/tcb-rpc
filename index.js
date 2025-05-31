@@ -152,6 +152,569 @@ app.use(
   })
 );
 
+// Mobile posting page route (protected)
+app.get('/post', apiAuth, (req, res) => {
+  // Serve the posting page HTML content directly
+  const mobilePostHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post to T</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #fff;
+            color: #222;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            color: #222;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .post-type-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .post-type-btn {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #222;
+            background: white;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .post-type-btn:hover {
+            background-color: #f5f5f5;
+        }
+
+        .post-type-btn.active {
+            background-color: #222;
+            color: white;
+        }
+
+        .form-section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        input[type="text"], 
+        input[type="file"], 
+        input[type="number"],
+        input[type="datetime-local"],
+        textarea, 
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            transition: border-color 0.2s ease;
+        }
+
+        input[type="text"]:focus, 
+        input[type="number"]:focus,
+        input[type="datetime-local"]:focus,
+        textarea:focus, 
+        select:focus {
+            outline: none;
+            border-color: #222;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 150px;
+        }
+
+        .photo-preview {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .photo-preview img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background-color: #222;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            background-color: #444;
+            transform: translateY(-1px);
+        }
+
+        .submit-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+            color: #666;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .result.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .result.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .result.active {
+            display: block;
+        }
+
+        .advanced-options {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .advanced-toggle {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+
+        .advanced-content {
+            display: none;
+        }
+
+        .advanced-content.active {
+            display: block;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .home-link {
+            display: block;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #666;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+
+        .home-link:hover {
+            color: #222;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 15px;
+            }
+
+            .post-type-selector {
+                flex-direction: column;
+            }
+
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+
+            .header h1 {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Post to T</h1>
+        <p>Create a new post from your mobile device</p>
+        <a href="/" class="home-link">← Back to site</a>
+    </div>
+
+    <div class="post-type-selector">
+        <button class="post-type-btn active" data-type="text">📝 Text</button>
+        <button class="post-type-btn" data-type="photo">📸 Photo</button>
+    </div>
+
+    <!-- Text Post Form -->
+    <div id="text-form" class="form-section active">
+        <div class="form-group">
+            <label for="text-title">Title (optional)</label>
+            <input type="text" id="text-title" placeholder="Leave blank for untitled post">
+        </div>
+
+        <div class="form-group">
+            <label for="text-content">Content *</label>
+            <textarea id="text-content" placeholder="Write your post here... (Markdown supported)" required></textarea>
+        </div>
+
+        <div class="advanced-options">
+            <button type="button" class="advanced-toggle" onclick="toggleAdvanced('text')">
+                ⚙️ Advanced Options
+            </button>
+            <div id="text-advanced" class="advanced-content">
+                <div class="form-group">
+                    <label for="text-category">Category</label>
+                    <select id="text-category">
+                        <option value="short">Short</option>
+                        <option value="long">Long</option>
+                        <option value="photo">Photo</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="text-date">Date (optional)</label>
+                    <input type="datetime-local" id="text-date">
+                </div>
+            </div>
+        </div>
+
+        <button type="button" class="submit-btn" onclick="submitTextPost()">
+            Publish Text Post
+        </button>
+    </div>
+
+    <!-- Photo Post Form -->
+    <div id="photo-form" class="form-section">
+        <div class="form-group">
+            <label for="photo-file">Photo *</label>
+            <input type="file" id="photo-file" accept="image/*" required onchange="previewPhoto()">
+            <div id="photo-preview" class="photo-preview"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="photo-title">Title (optional)</label>
+            <input type="text" id="photo-title" placeholder="Leave blank for untitled post">
+        </div>
+
+        <div class="form-group">
+            <label for="photo-caption">Caption (optional)</label>
+            <textarea id="photo-caption" placeholder="Add a caption for your photo..." rows="3"></textarea>
+        </div>
+
+        <div class="advanced-options">
+            <button type="button" class="advanced-toggle" onclick="toggleAdvanced('photo')">
+                ⚙️ Advanced Options
+            </button>
+            <div id="photo-advanced" class="advanced-content">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="photo-max-width">Max Width (px)</label>
+                        <input type="number" id="photo-max-width" value="1200" min="100" max="2000">
+                    </div>
+                    <div class="form-group">
+                        <label for="photo-quality">Quality (%)</label>
+                        <input type="number" id="photo-quality" value="80" min="10" max="100">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="photo-date">Date (optional)</label>
+                    <input type="datetime-local" id="photo-date">
+                </div>
+            </div>
+        </div>
+
+        <button type="button" class="submit-btn" onclick="submitPhotoPost()">
+            Upload Photo & Publish
+        </button>
+    </div>
+
+    <div id="loading" class="loading">
+        <p>📤 Publishing your post...</p>
+    </div>
+
+    <div id="result" class="result">
+        <div id="result-message"></div>
+    </div>
+
+    <script>
+        // Authentication will be handled by server-side Basic Auth
+        const API_BASE = window.location.origin;
+
+        // Post type switching
+        document.querySelectorAll('.post-type-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const type = btn.dataset.type;
+                switchPostType(type);
+            });
+        });
+
+        function switchPostType(type) {
+            // Update buttons
+            document.querySelectorAll('.post-type-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.type === type);
+            });
+
+            // Update forms
+            document.querySelectorAll('.form-section').forEach(section => {
+                section.classList.toggle('active', section.id === \`\${type}-form\`);
+            });
+        }
+
+        function toggleAdvanced(type) {
+            const content = document.getElementById(\`\${type}-advanced\`);
+            const toggle = content.previousElementSibling;
+            
+            content.classList.toggle('active');
+            toggle.textContent = content.classList.contains('active') 
+                ? '⚙️ Hide Advanced Options' 
+                : '⚙️ Advanced Options';
+        }
+
+        function previewPhoto() {
+            const file = document.getElementById('photo-file').files[0];
+            const preview = document.getElementById('photo-preview');
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = \`<img src="\${e.target.result}" alt="Photo preview">\`;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.innerHTML = '';
+            }
+        }
+
+        function showLoading() {
+            document.getElementById('loading').classList.add('active');
+            document.querySelectorAll('.submit-btn').forEach(btn => btn.disabled = true);
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').classList.remove('active');
+            document.querySelectorAll('.submit-btn').forEach(btn => btn.disabled = false);
+        }
+
+        function showResult(message, isSuccess = true) {
+            const result = document.getElementById('result');
+            const resultMessage = document.getElementById('result-message');
+            
+            result.className = \`result active \${isSuccess ? 'success' : 'error'}\`;
+            resultMessage.innerHTML = message;
+            
+            // Scroll to result
+            result.scrollIntoView({ behavior: 'smooth' });
+            
+            // Auto-hide after 10 seconds for success messages
+            if (isSuccess) {
+                setTimeout(() => {
+                    result.classList.remove('active');
+                }, 10000);
+            }
+        }
+
+        async function submitTextPost() {
+            const title = document.getElementById('text-title').value.trim();
+            const content = document.getElementById('text-content').value.trim();
+            const category = document.getElementById('text-category').value;
+            const date = document.getElementById('text-date').value;
+
+            if (!content) {
+                showResult('Please enter some content for your post.', false);
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const response = await fetch(\`\${API_BASE}/api/create-text-post\`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title: title || undefined,
+                        content: content,
+                        category: category,
+                        date: date || undefined
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showResult(\`
+                        ✅ Post published successfully!<br>
+                        <strong>Post ID:</strong> \${result.postId}<br>
+                        <strong>Category:</strong> \${result.category}<br>
+                        <a href="\${API_BASE}" target="_blank">View your site →</a>
+                    \`);
+                    
+                    // Clear form
+                    document.getElementById('text-title').value = '';
+                    document.getElementById('text-content').value = '';
+                    document.getElementById('text-date').value = '';
+                } else {
+                    showResult(\`❌ Error: \${result.error}\`, false);
+                }
+            } catch (error) {
+                showResult(\`❌ Network error: \${error.message}\`, false);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function submitPhotoPost() {
+            const file = document.getElementById('photo-file').files[0];
+            const title = document.getElementById('photo-title').value.trim();
+            const caption = document.getElementById('photo-caption').value.trim();
+            const maxWidth = document.getElementById('photo-max-width').value;
+            const quality = document.getElementById('photo-quality').value;
+            const date = document.getElementById('photo-date').value;
+
+            if (!file) {
+                showResult('Please select a photo to upload.', false);
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const formData = new FormData();
+                formData.append('photo', file);
+                formData.append('title', title);
+                formData.append('caption', caption);
+                formData.append('category', 'photo');
+                formData.append('maxWidth', maxWidth);
+                formData.append('quality', quality);
+                if (date) {
+                    formData.append('date', date);
+                }
+
+                const response = await fetch(\`\${API_BASE}/api/upload-photo\`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showResult(\`
+                        ✅ Photo uploaded and published!<br>
+                        <strong>Post ID:</strong> \${result.postId}<br>
+                        <strong>Image:</strong> \${result.imageInfo.name} (\${Math.round(result.imageInfo.size / 1024)} KB)<br>
+                        <a href="\${API_BASE}" target="_blank">View your site →</a>
+                    \`);
+                    
+                    // Clear form
+                    document.getElementById('photo-file').value = '';
+                    document.getElementById('photo-title').value = '';
+                    document.getElementById('photo-caption').value = '';
+                    document.getElementById('photo-date').value = '';
+                    document.getElementById('photo-preview').innerHTML = '';
+                } else {
+                    showResult(\`❌ Error: \${result.error}\`, false);
+                }
+            } catch (error) {
+                showResult(\`❌ Network error: \${error.message}\`, false);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Mobile posting page loaded');
+        });
+    </script>
+</body>
+</html>`;
+
+  res.send(mobilePostHtml);
+});
+
+
 // Mobile API endpoints
 
 /**
