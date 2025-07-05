@@ -4,13 +4,20 @@ const axios = require('axios');
 exports.getApod = async function(){
 
     //get APOD payload from NASA
+    let isImage = false;
+    let nasaData;
+    while (!isImage){
     const nasaResponse = await axios.get('https://api.nasa.gov/planetary/apod\?api_key\=4daOLYTIsZBadmz1Y1OTILDyGAgxk7LX6sqDczBc\&count\=1');
-    const nasaData = nasaResponse.data[0];
+    nasaData = nasaResponse.data[0];
+    if (nasaData.media_type == 'image') {
+        isImage = true;
+    }
+    }
     
-    const nasaFileName = new URL(nasaResponse.data[0].hdurl).pathname.split('/').pop();
+    const nasaFileName = new URL(nasaData.hdurl).pathname.split('/').pop();
 
     //get APOD image from NASA
-    const nasaImgResponse = await axios.get(nasaResponse.data[0].hdurl, {
+    const nasaImgResponse = await axios.get(nasaData.hdurl, {
     responseType: 'arraybuffer'
   });
 
