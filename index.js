@@ -964,6 +964,7 @@ app.get('/api/apod', async(req,res) => {
   try {
     console.log(req);
     const apodResponse = await getApod();
+    await buildSite();
     res.send(apodResponse);
   } catch (error) {
     console.error("Error getting APOD", error);
