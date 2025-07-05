@@ -26,6 +26,7 @@ const getUserInfo = require('./getUserInfo').getUserInfo;
 const getUsersBlogs = require('./getUsersBlogs').getUsersBlogs;
 const Post = require('./post');
 const MediaObject = require('./mediaObject');
+const getApod = require('./getApod').getApod;
 
 // Load environment variables
 dotenv.config();
@@ -846,7 +847,7 @@ app.post('/api/upload-photo', apiAuth, upload.single('photo'), async (req, res) 
  * - category: Post category (default: "short")
  * - date: Publication date (default: now)
  */
-app.post('/api/create-text-post', apiAuth, express.json(), async (req, res) => {
+app.post('/api/create-text-post', apiAuth, async (req, res) => {
   try {
     // Extract parameters
     const { title, content, category, date } = req.body;
@@ -956,6 +957,23 @@ app.get('/api/recent-posts', apiAuth, async (req, res) => {
     });
   }
 });
+
+
+app.get('/api/apod', async(req,res) => {
+  console.log('made it to apod handler');
+  try {
+    console.log(req);
+    const apodResponse = await getApod();
+    res.send(apodResponse);
+  } catch (error) {
+    console.error("Error getting APOD", error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message || "An unknown error occurred" 
+    });
+  }
+});
+  
 
 // Start servers
 (async function start() {
