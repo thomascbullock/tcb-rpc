@@ -33,7 +33,7 @@ class MediaObject {
     this.options = {
       maxWidth: options.maxWidth || 1200,
       maxHeight: options.maxHeight || 1200,
-      quality: options.quality || 80,
+      quality: options.quality || 85,
       convertToJpg: options.convertToJpg !== false, // Default true
       processImages: options.processImages !== false // Default true
     };
@@ -120,7 +120,11 @@ class MediaObject {
 
       // Convert to JPG if option is enabled (except for SVG)
       if (this.options.convertToJpg && metadata.format !== 'svg') {
-        image = image.jpeg({ quality: this.options.quality });
+        image = image.jpeg({
+          quality: this.options.quality,
+          mozjpeg: true,      // Better compression algorithm
+          progressive: true   // Progressive loading for better UX
+        });
         this.type = 'image/jpeg';
       }
 

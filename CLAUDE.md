@@ -60,3 +60,11 @@ Posts have a `type` field in front matter: `long`, `short`, or `photo`. Each typ
 ├── css/                                    # Stylesheets
 └── img/                                    # Images
 ```
+
+### To Do
+
+Here are a list of things I'm dissatisfied with about the current setup and want Claude to help improve:
+  - I feel like posts need better long term storage than the Posts directory so that if the server dies the state isn't lost. what's the best way to manage that automatically?
+  - Images uploaded through Sharp seem just a bit lower quality than I'd prefer, is there a way to improve that but still keep it web-friendly? do we have any headroom there?
+  - The situation where posts without a title have the permalink icon, but posts with a title use the title for that seems a bit weird - should the icon be there in all cases? should the permalink just be the date (I suppose multiple posts in a day could make that confusing)
+

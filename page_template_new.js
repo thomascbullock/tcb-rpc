@@ -134,14 +134,12 @@ class Page {
         } else {
           displayDate = new Date(); // Fallback to current date
         }
-        
+
         const readableDate = moment(displayDate).format('MMMM Do YYYY');
-        
-        // Add permalink glyph for untitled posts next to the date
-        const permalinkGlyph = !hasTitle ? 
-          `<a href="${post.href}" class="permalink-glyph" title="View this post" aria-label="Permalink to this post">∞</a>` : 
-          '';
-        
+
+        // Always show permalink glyph next to the date
+        const permalinkGlyph = `<a href="${post.href}" class="permalink-glyph" title="Permalink" aria-label="Permalink to this post">∞</a>`;
+
         singleBody += `<p class="date-time">
         <time datetime="${moment(displayDate).format('YYYY-MM-DD')}" pubdate="pubdate">${readableDate}</time>${permalinkGlyph}</p>`;
       }

@@ -5,6 +5,9 @@
 const fs = require('fs-extra');
 const path = require('path');
 const crypto = require('crypto');
+const { exec } = require('child_process');
+const { promisify } = require('util');
+const execAsync = promisify(exec);
 
 class Post {
   /**
@@ -170,8 +173,12 @@ class Post {
       // Write file
       const filePath = this.getFilePath();
       await fs.writeFile(filePath, postContent);
-      
+
       console.log(`Post ${isUpdate ? 'updated' : 'saved'} to ${filePath}`);
+
+      // Auto-commit to git
+      await this.gitAutoCommit(`${isUpdate ? 'Update' : 'Add'} post ${this.postid}`);
+
       return this.postid;
     } catch (error) {
       console.error(`Error saving post: ${error.message}`);
@@ -186,18 +193,58 @@ class Post {
   async delete() {
     try {
       const filePath = this.getFilePath();
-      
+
       // Check if file exists
       if (!await fs.pathExists(filePath)) {
         throw new Error(`Post file not found: ${filePath}`);
       }
-      
+
       // Delete the file
       await fs.remove(filePath);
       console.log(`Post deleted: ${filePath}`);
+
+      // Auto-commit to git
+      await this.gitAutoCommit(`Delete post ${this.postid}`);
     } catch (error) {
       console.error(`Error deleting post: ${error.message}`);
       throw new Error(`Failed to delete post: ${error.message}`);
+    }
+  }
+
+  /**
+   * Auto-commit changes to git for durability
+   * @param {string} message - Commit message
+   * @returns {Promise<void>}
+   */
+  async gitAutoCommit(message) {
+    try {
+      // Check if we're in a git repo
+      await execAsync('git rev-parse --git-dir', { cwd: process.cwd() });
+
+      // Add posts directory and commit
+      await execAsync('git add posts/ img/', { cwd: process.cwd() });
+
+      // Check if there are changes to commit
+      const { stdout: status } = await execAsync('git status --porcelain posts/ img/', { cwd: process.cwd() });
+      if (!status.trim()) {
+        console.log('No changes to commit');
+        return;
+      }
+
+      // Commit and push
+      await execAsync(`git commit -m "${message}"`, { cwd: process.cwd() });
+      console.log(`Git commit: ${message}`);
+
+      // Try to push, but don't fail if it doesn't work (might be offline)
+      try {
+        await execAsync('git push', { cwd: process.cwd() });
+        console.log('Git push successful');
+      } catch (pushError) {
+        console.warn('Git push failed (will retry later):', pushError.message);
+      }
+    } catch (error) {
+      // Don't fail the operation if git commit fails
+      console.warn('Git auto-commit failed:', error.message);
     }
   }
   
