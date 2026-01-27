@@ -82,15 +82,6 @@ class Page {
 
     pageRendered = `${pageRendered}
                 </nav>
-                <div class="rss-links">
-                    <p>Subscribe: 
-                        <a href="/feeds/index.xml">RSS</a> | 
-                        <a href="/feeds/rss-all.xml">All</a> | 
-                        <a href="/feeds/rss-long.xml">Long</a> | 
-                        <a href="/feeds/rss-short.xml">Short</a> | 
-                        <a href="/feeds/rss-photo.xml">Photo</a>
-                    </p>
-                </div>
             </footer>    
             </body>
         </html>`;
