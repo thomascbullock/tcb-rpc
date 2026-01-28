@@ -396,6 +396,110 @@ app.get('/post', apiAuth, (req, res) => {
             color: #222;
         }
 
+        /* Recent Posts Section */
+        .recent-posts {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #eee;
+        }
+
+        .recent-posts h2 {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .recent-posts-list {
+            list-style: none;
+        }
+
+        .recent-post-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            gap: 10px;
+        }
+
+        .recent-post-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .recent-post-title {
+            font-weight: 500;
+            color: #222;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .recent-post-meta {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .recent-post-actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .recent-post-actions button {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.2s ease;
+        }
+
+        .edit-btn {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .edit-btn:hover {
+            background: #bbdefb;
+        }
+
+        .delete-btn {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .delete-btn:hover {
+            background: #ffcdd2;
+        }
+
+        .cancel-btn {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .cancel-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .edit-mode-notice {
+            background: #fff3e0;
+            color: #e65100;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .edit-mode-notice.active {
+            display: flex;
+        }
+
         @media (max-width: 480px) {
             body {
                 padding: 15px;
@@ -426,6 +530,12 @@ app.get('/post', apiAuth, (req, res) => {
     <div class="post-type-selector">
         <button class="post-type-btn active" data-type="text">📝 Text</button>
         <button class="post-type-btn" data-type="photo">📸 Photo</button>
+    </div>
+
+    <!-- Edit Mode Notice -->
+    <div id="edit-mode-notice" class="edit-mode-notice">
+        <span>✏️ Editing post: <strong id="edit-post-id"></strong></span>
+        <button class="cancel-btn" onclick="cancelEdit()">Cancel</button>
     </div>
 
     <!-- Text Post Form -->
@@ -460,7 +570,7 @@ app.get('/post', apiAuth, (req, res) => {
             </div>
         </div>
 
-        <button type="button" class="submit-btn" onclick="submitTextPost()">
+        <button type="button" class="submit-btn" id="text-submit-btn" onclick="submitTextPost()">
             Publish Text Post
         </button>
     </div>
@@ -516,6 +626,14 @@ app.get('/post', apiAuth, (req, res) => {
 
     <div id="result" class="result">
         <div id="result-message"></div>
+    </div>
+
+    <!-- Recent Posts Section -->
+    <div class="recent-posts">
+        <h2>Recent Posts</h2>
+        <ul id="recent-posts-list" class="recent-posts-list">
+            <li style="color: #666; padding: 12px;">Loading...</li>
+        </ul>
     </div>
 
     <script>
@@ -609,33 +727,51 @@ app.get('/post', apiAuth, (req, res) => {
             showLoading();
 
             try {
-                const response = await fetch(\`\${API_BASE}/api/create-text-post\`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        title: title || undefined,
-                        content: content,
-                        category: category,
-                        date: date || undefined
-                    })
-                });
+                let response;
+                let isUpdate = editingPostId !== null;
+
+                if (isUpdate) {
+                    // Update existing post
+                    response = await fetch(\`\${API_BASE}/api/edit-post/\${editingPostId}\`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            title: title || '',
+                            content: content,
+                            category: category
+                        })
+                    });
+                } else {
+                    // Create new post
+                    response = await fetch(\`\${API_BASE}/api/create-text-post\`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            title: title || undefined,
+                            content: content,
+                            category: category,
+                            date: date || undefined
+                        })
+                    });
+                }
 
                 const result = await response.json();
 
                 if (result.success) {
                     showResult(\`
-                        ✅ Post published successfully!<br>
+                        ✅ Post \${isUpdate ? 'updated' : 'published'} successfully!<br>
                         <strong>Post ID:</strong> \${result.postId}<br>
                         <strong>Category:</strong> \${result.category}<br>
                         <a href="\${API_BASE}" target="_blank">View your site →</a>
                     \`);
-                    
-                    // Clear form
-                    document.getElementById('text-title').value = '';
-                    document.getElementById('text-content').value = '';
-                    document.getElementById('text-date').value = '';
+
+                    // Clear form and exit edit mode
+                    cancelEdit();
+                    loadRecentPosts();
                 } else {
                     showResult(\`❌ Error: \${result.error}\`, false);
                 }
@@ -704,9 +840,124 @@ app.get('/post', apiAuth, (req, res) => {
             }
         }
 
+        // Edit mode state
+        let editingPostId = null;
+
+        // Load recent posts on page load
+        async function loadRecentPosts() {
+            try {
+                const response = await fetch(\`\${API_BASE}/api/recent-posts?count=10\`);
+                const data = await response.json();
+
+                const list = document.getElementById('recent-posts-list');
+
+                if (data.success && data.posts.length > 0) {
+                    list.innerHTML = data.posts.map(post => {
+                        const title = post.title || '(untitled)';
+                        const date = new Date(post.date).toLocaleDateString();
+                        return \`
+                            <li class="recent-post-item" data-id="\${post.id}">
+                                <div class="recent-post-info">
+                                    <div class="recent-post-title">\${title}</div>
+                                    <div class="recent-post-meta">\${date} · \${post.category}</div>
+                                </div>
+                                <div class="recent-post-actions">
+                                    <button class="edit-btn" onclick="editPost('\${post.id}')">Edit</button>
+                                    <button class="delete-btn" onclick="deletePost('\${post.id}')">Delete</button>
+                                </div>
+                            </li>
+                        \`;
+                    }).join('');
+                } else {
+                    list.innerHTML = '<li style="color: #666; padding: 12px;">No recent posts</li>';
+                }
+            } catch (error) {
+                console.error('Error loading recent posts:', error);
+                document.getElementById('recent-posts-list').innerHTML =
+                    '<li style="color: #c62828; padding: 12px;">Error loading posts</li>';
+            }
+        }
+
+        // Edit a post
+        async function editPost(postId) {
+            try {
+                showLoading();
+                const response = await fetch(\`\${API_BASE}/api/post/\${postId}\`);
+                const data = await response.json();
+
+                if (data.success) {
+                    // Switch to text form
+                    switchPostType('text');
+
+                    // Populate form
+                    document.getElementById('text-title').value = data.post.title || '';
+                    document.getElementById('text-content').value = data.post.content || '';
+                    document.getElementById('text-category').value = data.post.category || 'short';
+
+                    // Show edit mode
+                    editingPostId = postId;
+                    document.getElementById('edit-mode-notice').classList.add('active');
+                    document.getElementById('edit-post-id').textContent = postId.substring(0, 8) + '...';
+                    document.getElementById('text-submit-btn').textContent = 'Update Post';
+
+                    // Scroll to form
+                    document.querySelector('.header').scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    showResult(\`❌ Error loading post: \${data.error}\`, false);
+                }
+            } catch (error) {
+                showResult(\`❌ Error: \${error.message}\`, false);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Cancel edit mode
+        function cancelEdit() {
+            editingPostId = null;
+            document.getElementById('edit-mode-notice').classList.remove('active');
+            document.getElementById('text-submit-btn').textContent = 'Publish Text Post';
+            document.getElementById('text-title').value = '';
+            document.getElementById('text-content').value = '';
+            document.getElementById('text-category').value = 'short';
+            document.getElementById('text-date').value = '';
+        }
+
+        // Delete a post
+        async function deletePost(postId) {
+            if (!confirm('Are you sure you want to delete this post? This cannot be undone.')) {
+                return;
+            }
+
+            try {
+                showLoading();
+                const response = await fetch(\`\${API_BASE}/api/delete-post/\${postId}\`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    showResult('✅ Post deleted successfully!');
+                    loadRecentPosts(); // Refresh the list
+
+                    // If we were editing this post, cancel edit mode
+                    if (editingPostId === postId) {
+                        cancelEdit();
+                    }
+                } else {
+                    showResult(\`❌ Error: \${data.error}\`, false);
+                }
+            } catch (error) {
+                showResult(\`❌ Error: \${error.message}\`, false);
+            } finally {
+                hideLoading();
+            }
+        }
+
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', () => {
             console.log('Mobile posting page loaded');
+            loadRecentPosts();
         });
     </script>
 </body>
@@ -958,6 +1209,112 @@ app.get('/api/recent-posts', apiAuth, async (req, res) => {
   }
 });
 
+
+/**
+ * GET /api/post/:id
+ * Returns a specific post for editing
+ */
+app.get('/api/post/:id', apiAuth, async (req, res) => {
+  try {
+    const postId = req.params.id;
+    const post = await Post.loadById(postId);
+
+    res.json({
+      success: true,
+      post: {
+        id: post.postid,
+        title: post.title,
+        content: post.description,
+        category: post.categories[0],
+        date: post.dateCreated
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching post:", error);
+    res.status(404).json({
+      success: false,
+      error: error.message || "Post not found"
+    });
+  }
+});
+
+/**
+ * PUT /api/edit-post/:id
+ * Updates an existing post
+ */
+app.put('/api/edit-post/:id', apiAuth, async (req, res) => {
+  try {
+    const postId = req.params.id;
+    const { title, content, category } = req.body;
+
+    if (!content) {
+      return res.status(400).json({
+        success: false,
+        error: "Content is required"
+      });
+    }
+
+    // Load existing post to preserve date
+    const existingPost = await Post.loadById(postId);
+
+    // Update post
+    const postParams = {
+      postid: postId,
+      title: title || '',
+      description: content,
+      categories: [category || existingPost.categories[0]],
+      dateCreated: existingPost.dateCreated
+    };
+
+    const post = new Post(postParams);
+    await post.save();
+
+    // Rebuild the site
+    await buildSite();
+
+    res.json({
+      success: true,
+      postId: postId,
+      message: "Post updated successfully",
+      title: title || '',
+      category: category || existingPost.categories[0]
+    });
+  } catch (error) {
+    console.error("Error updating post:", error);
+    res.status(500).json({
+      success: false,
+      error: error.message || "An unknown error occurred"
+    });
+  }
+});
+
+/**
+ * DELETE /api/delete-post/:id
+ * Deletes a post
+ */
+app.delete('/api/delete-post/:id', apiAuth, async (req, res) => {
+  try {
+    const postId = req.params.id;
+
+    // Load and delete the post
+    const post = await Post.loadById(postId);
+    await post.delete();
+
+    // Rebuild the site
+    await buildSite();
+
+    res.json({
+      success: true,
+      message: "Post deleted successfully"
+    });
+  } catch (error) {
+    console.error("Error deleting post:", error);
+    res.status(500).json({
+      success: false,
+      error: error.message || "An unknown error occurred"
+    });
+  }
+});
 
 app.get('/api/apod', async(req,res) => {
   console.log('made it to apod handler');
