@@ -102,9 +102,9 @@ class MediaObject {
         return this.bits;
       }
 
-      // Create sharp instance
-      let image = sharp(this.bits);
-      
+      // Create sharp instance and auto-rotate based on EXIF orientation
+      let image = sharp(this.bits).rotate();
+
       // Get image metadata
       const metadata = await image.metadata();
       
