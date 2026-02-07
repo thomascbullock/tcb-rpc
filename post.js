@@ -213,10 +213,17 @@ class Post {
 
   /**
    * Auto-commit changes to git for durability
+   * Only runs in production (NODE_ENV=production)
    * @param {string} message - Commit message
    * @returns {Promise<void>}
    */
   async gitAutoCommit(message) {
+    // Skip git operations in development
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('Skipping git auto-commit (not in production)');
+      return;
+    }
+
     try {
       // Check if we're in a git repo
       await execAsync('git rev-parse --git-dir', { cwd: process.cwd() });

@@ -10,10 +10,13 @@ const MASTODON_ACCESS_TOKEN = process.env.MASTODON_ACCESS_TOKEN;
 const MASTODON_CHAR_LIMIT = 500;
 
 /**
- * Check if Mastodon is configured
+ * Check if Mastodon is configured and we're in production
  * @returns {boolean}
  */
 function isConfigured() {
+  if (process.env.NODE_ENV !== 'production') {
+    return false;
+  }
   return !!(MASTODON_INSTANCE && MASTODON_ACCESS_TOKEN);
 }
 
@@ -104,7 +107,11 @@ function getPermalink(post) {
  */
 async function crossPost(options) {
   if (!isConfigured()) {
-    console.warn('Mastodon not configured, skipping cross-post');
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('Skipping Mastodon cross-post (not in production)');
+    } else {
+      console.warn('Mastodon not configured, skipping cross-post');
+    }
     return null;
   }
 
