@@ -27,6 +27,7 @@ const getUsersBlogs = require('./getUsersBlogs').getUsersBlogs;
 const Post = require('./post');
 const MediaObject = require('./mediaObject');
 const getApod = require('./getApod').getApod;
+const mastodon = require('./mastodon');
 
 // Load environment variables
 dotenv.config();
@@ -1061,9 +1062,20 @@ app.post('/api/upload-photo', apiAuth, upload.single('photo'), async (req, res) 
     // Rebuild the site
     await buildSite();
 
+    // Cross-post to Mastodon
+    const mastodonResult = await mastodon.crossPost({
+      type: 'photo',
+      title: title,
+      content: caption,
+      dateCreated: dateCreated,
+      slug: post.slug,
+      imageBuffer: req.file.buffer,
+      imageMimeType: req.file.mimetype
+    });
+
     // Return success response
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       postId: postId,
       imageUrl: mediaResult.url,
       title: title,
@@ -1075,6 +1087,7 @@ app.post('/api/upload-photo', apiAuth, upload.single('photo'), async (req, res) 
         height: imageOptions.maxHeight,
         processed: mediaResult.processed
       },
+      mastodon: mastodonResult ? { url: mastodonResult.url } : null,
       message: "Photo uploaded, processed, and post created successfully"
     });
   } catch (error) {
@@ -1133,10 +1146,19 @@ app.post('/api/create-text-post', apiAuth, async (req, res) => {
     // Create and save the post
     const post = new Post(postParams);
     const postId = await post.save();
-    
+
     // Rebuild the site
     await buildSite();
-    
+
+    // Cross-post to Mastodon
+    const mastodonResult = await mastodon.crossPost({
+      type: postCategory,
+      title: postTitle,
+      content: content,
+      dateCreated: dateCreated,
+      slug: post.slug
+    });
+
     // Return success response
     res.json({
       success: true,
@@ -1144,7 +1166,8 @@ app.post('/api/create-text-post', apiAuth, async (req, res) => {
       message: "Text post created successfully",
       title: postTitle,
       category: postCategory,
-      date: dateCreated.toISOString()
+      date: dateCreated.toISOString(),
+      mastodon: mastodonResult ? { url: mastodonResult.url } : null
     });
   } catch (error) {
     console.error("Error creating text post:", error);
