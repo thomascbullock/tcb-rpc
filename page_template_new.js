@@ -2,6 +2,27 @@ const moment = require('moment');
 const fs = require('fs-extra');
 const path = require('path');
 
+/**
+ * Process HTML to add target="_blank" rel="noopener" to external links
+ * @param {string} html - HTML content to process
+ * @returns {string} Processed HTML
+ */
+function processExternalLinks(html) {
+  // Match <a> tags with href starting with http:// or https://
+  // but not linking to thomascbullock.com
+  return html.replace(
+    /<a\s+([^>]*href=["'](https?:\/\/(?!thomascbullock\.com)[^"']+)["'][^>]*)>/gi,
+    (match, attributes, url) => {
+      // Skip if already has target attribute
+      if (/target=/i.test(attributes)) {
+        return match;
+      }
+      // Add target="_blank" and rel="noopener"
+      return `<a ${attributes} target="_blank" rel="noopener">`;
+    }
+  );
+}
+
 class Page {
   constructor(inPage) {
     this.title = inPage.title;
@@ -135,7 +156,7 @@ class Page {
         <time datetime="${moment(displayDate).format('YYYY-MM-DD')}" pubdate="pubdate">${readableDate}</time>${permalinkGlyph}</p>`;
       }
       
-      singleBody += `${post.body}</article>`;
+      singleBody += `${processExternalLinks(post.body)}</article>`;
       body += singleBody;
     }
     return body;
