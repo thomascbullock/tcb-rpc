@@ -5,6 +5,7 @@
 const auth = require('./auth').auth;
 const authError = require('./auth').authError;
 const Post = require('./post');
+const mastodon = require('./mastodon');
 
 exports.newPost = async function(params) {
   try {
@@ -44,7 +45,16 @@ exports.newPost = async function(params) {
     
     // Save the post and get ID
     const postId = await post.save();
-    
+
+    // Cross-post to Mastodon
+    await mastodon.crossPost({
+      type: post.categories[0] || 'long',
+      title: post.title,
+      content: post.description,
+      dateCreated: post.dateCreated,
+      slug: post.slug
+    });
+
     // MetaWeblog API requires returning the post ID as a string
     return postId;
   } catch (error) {
