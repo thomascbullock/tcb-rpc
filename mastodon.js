@@ -193,15 +193,8 @@ async function crossPost(options) {
       }
 
     } else {
-      // Short post: full content converted to plain text
-      const plainContent = toPlainText(content);
-      statusText = plainContent;
-
-      // Add permalink if there's room
-      const withLink = `${plainContent}\n\n${permalink}`;
-      if (withLink.length <= MASTODON_CHAR_LIMIT) {
-        statusText = withLink;
-      }
+      // Short post: full content converted to plain text, no permalink
+      statusText = toPlainText(content);
     }
 
     // Truncate if still too long (shouldn't happen but just in case)

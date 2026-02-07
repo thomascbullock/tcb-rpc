@@ -191,12 +191,15 @@ class RSSGenerator {
       }
       
       // Generate XML
-      const xml = feed.xml({ indent: true });
-      
+      let xml = feed.xml({ indent: true });
+
+      // Remove "No title" placeholders that the rss library adds for empty titles
+      xml = xml.replace(/<title>\s*<!\[CDATA\[\s*No title\s*\]\]>\s*<\/title>/g, '<title></title>');
+
       // Write to file
       const outputPath = path.join(this.outputDir, `rss-${type}.xml`);
       await writeFileAsync(outputPath, xml);
-      
+
       return outputPath;
     } catch (error) {
       console.error(`Error generating ${type} feed:`, error);
@@ -264,18 +267,21 @@ class RSSGenerator {
       }
       
       // Generate XML
-      const xml = feed.xml({ indent: true });
-      
+      let xml = feed.xml({ indent: true });
+
+      // Remove "No title" placeholders that the rss library adds for empty titles
+      xml = xml.replace(/<title>\s*<!\[CDATA\[\s*No title\s*\]\]>\s*<\/title>/g, '<title></title>');
+
       // Write to file
       const outputPath = path.join(this.outputDir, `index.xml`);
       await writeFileAsync(outputPath, xml);
-      
+
       // Also create atom.xml as an alias
       await writeFileAsync(path.join(this.outputDir, `atom.xml`), xml);
-      
+
       // And rss.xml as another common alias
       await writeFileAsync(path.join(this.outputDir, `rss.xml`), xml);
-      
+
       return outputPath;
     } catch (error) {
       console.error('Error generating main feed:', error);
