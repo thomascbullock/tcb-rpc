@@ -94,6 +94,46 @@ function getPermalink(post) {
 }
 
 /**
+ * Convert HTML/Markdown content to plain text for Mastodon
+ * - Converts HTML links <a href="url">text</a> to "text url"
+ * - Converts Markdown links [text](url) to "text url"
+ * - Strips remaining HTML tags
+ * - Cleans up whitespace
+ * @param {string} content - HTML or Markdown content
+ * @returns {string} Plain text suitable for Mastodon
+ */
+function toPlainText(content) {
+  if (!content) return '';
+
+  let text = content;
+
+  // Convert HTML links: <a href="url">text</a> -> text url
+  text = text.replace(/<a\s+[^>]*href=["']([^"']+)["'][^>]*>([^<]*)<\/a>/gi, '$2 $1');
+
+  // Convert Markdown links: [text](url) -> text url
+  text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1 $2');
+
+  // Strip remaining HTML tags
+  text = text.replace(/<[^>]+>/g, '');
+
+  // Decode common HTML entities
+  text = text.replace(/&amp;/g, '&');
+  text = text.replace(/&lt;/g, '<');
+  text = text.replace(/&gt;/g, '>');
+  text = text.replace(/&quot;/g, '"');
+  text = text.replace(/&#39;/g, "'");
+  text = text.replace(/&apos;/g, "'");
+  text = text.replace(/&nbsp;/g, ' ');
+
+  // Clean up whitespace (multiple spaces, newlines)
+  text = text.replace(/\n\s*\n/g, '\n\n');  // Multiple newlines to double
+  text = text.replace(/[ \t]+/g, ' ');       // Multiple spaces to single
+  text = text.trim();
+
+  return text;
+}
+
+/**
  * Cross-post a blog post to Mastodon
  * @param {Object} options - Post options
  * @param {string} options.type - Post type: 'short', 'long', or 'photo'
@@ -130,10 +170,11 @@ async function crossPost(options) {
 
       // Use title or content as caption, or just empty
       if (title) {
-        statusText = title;
+        statusText = toPlainText(title);
       } else if (content && !content.startsWith('![')) {
         // Use content if it's not just the image markdown
-        statusText = content.replace(/!\[.*?\]\(.*?\)/g, '').trim();
+        const cleanContent = content.replace(/!\[.*?\]\(.*?\)/g, '').trim();
+        statusText = toPlainText(cleanContent);
       }
 
       // Add permalink
@@ -152,11 +193,12 @@ async function crossPost(options) {
       }
 
     } else {
-      // Short post: full content
-      statusText = content;
+      // Short post: full content converted to plain text
+      const plainContent = toPlainText(content);
+      statusText = plainContent;
 
       // Add permalink if there's room
-      const withLink = `${content}\n\n${permalink}`;
+      const withLink = `${plainContent}\n\n${permalink}`;
       if (withLink.length <= MASTODON_CHAR_LIMIT) {
         statusText = withLink;
       }
