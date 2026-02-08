@@ -318,7 +318,7 @@ class Website {
       const rssGenerator = new RSSGenerator({
         siteUrl: 'https://thomascbullock.com',
         siteTitle: 'T',
-        siteDescription: 'Thomas C. Bullock\'s Blog',
+        siteDescription: 'Thom Bullock\'s Blog',
         outputDir: path.join(outputPath, 'feeds'),
         postmaster: this.postmaster,
         useBlankTitles: true
