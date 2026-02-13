@@ -996,6 +996,9 @@ app.get('/api/health', (req, res) => {
  * - convertToJpg: Whether to convert images to JPG (default: true)
  */
 app.post('/api/upload-photo', apiAuth, upload.single('photo'), async (req, res) => {
+  const startTime = Date.now();
+  const log = (msg) => console.log(`[upload-photo] ${msg} (+${Date.now() - startTime}ms)`);
+
   try {
     // Extract basic parameters
     const title = req.body.title || "";
@@ -1008,6 +1011,8 @@ app.post('/api/upload-photo', apiAuth, upload.single('photo'), async (req, res) 
       return res.status(400).json({ success: false, error: "No photo provided" });
     }
 
+    log(`Received ${req.file.originalname} (${Math.round(req.file.size / 1024)} KB)`);
+
     // Extract image processing options
     const imageOptions = {
       maxWidth: parseInt(req.body.maxWidth, 10) || 1200,
@@ -1016,10 +1021,6 @@ app.post('/api/upload-photo', apiAuth, upload.single('photo'), async (req, res) 
       convertToJpg: req.body.convertToJpg !== 'false',
       processImages: true
     };
-
-    // Log upload info
-    console.log(`Mobile API photo upload: ${req.file.originalname} (${req.file.mimetype})`);
-    console.log('Image processing options:', imageOptions);
 
     // Generate a unique filename
     const fileExt = path.extname(req.file.originalname) || '.jpg';
@@ -1035,10 +1036,11 @@ app.post('/api/upload-photo', apiAuth, upload.single('photo'), async (req, res) 
     // Process and save the image
     const mediaObject = new MediaObject(mediaObjParams, imageOptions);
     const mediaResult = await mediaObject.save();
+    log(`Image processed and saved: ${mediaResult.name}`);
 
     // Create markdown image reference
     let markdown = `![${title || "Photo"}](${mediaResult.url})`;
-    
+
     // Add caption if provided
     if (caption) {
       markdown += `\n\n${caption}`;
@@ -1058,22 +1060,9 @@ app.post('/api/upload-photo', apiAuth, upload.single('photo'), async (req, res) 
     // Create and save the post
     const post = new Post(postParams);
     const postId = await post.save();
+    log(`Post saved: ${postId}`);
 
-    // Rebuild the site
-    await buildSite();
-
-    // Cross-post to Mastodon
-    const mastodonResult = await mastodon.crossPost({
-      type: 'photo',
-      title: title,
-      content: caption,
-      dateCreated: dateCreated,
-      slug: post.slug,
-      imageBuffer: req.file.buffer,
-      imageMimeType: req.file.mimetype
-    });
-
-    // Return success response
+    // Return success response immediately
     res.json({
       success: true,
       postId: postId,
@@ -1087,9 +1076,33 @@ app.post('/api/upload-photo', apiAuth, upload.single('photo'), async (req, res) 
         height: imageOptions.maxHeight,
         processed: mediaResult.processed
       },
-      mastodon: mastodonResult ? { url: mastodonResult.url } : null,
-      message: "Photo uploaded, processed, and post created successfully"
+      message: "Photo uploaded and post created. Site rebuild in progress."
     });
+    log('Response sent to client');
+
+    // Run site rebuild and Mastodon cross-post in background (don't await)
+    (async () => {
+      try {
+        await buildSite();
+        log('Site rebuilt');
+
+        const mastodonResult = await mastodon.crossPost({
+          type: 'photo',
+          title: title,
+          content: caption,
+          dateCreated: dateCreated,
+          slug: post.slug,
+          imageBuffer: req.file.buffer,
+          imageMimeType: req.file.mimetype
+        });
+        if (mastodonResult) {
+          log(`Mastodon post created: ${mastodonResult.url}`);
+        }
+      } catch (bgError) {
+        console.error('[upload-photo] Background task error:', bgError);
+      }
+    })();
+
   } catch (error) {
     console.error("Error handling mobile upload:", error);
     res.status(500).json({ 
@@ -1112,29 +1125,34 @@ app.post('/api/upload-photo', apiAuth, upload.single('photo'), async (req, res) 
  * - date: Publication date (default: now)
  */
 app.post('/api/create-text-post', apiAuth, async (req, res) => {
+  const startTime = Date.now();
+  const log = (msg) => console.log(`[create-text-post] ${msg} (+${Date.now() - startTime}ms)`);
+
   try {
     // Extract parameters
     const { title, content, category, date } = req.body;
-    
+
     // Validate required content field
     if (!content) {
-      return res.status(400).json({ 
-        success: false, 
-        error: "Content is required" 
+      return res.status(400).json({
+        success: false,
+        error: "Content is required"
       });
     }
-    
+
+    log('Request received');
+
     // Set defaults for optional fields
     let postTitle = title;
-    
+
     // If no title is provided, use empty string
     if (postTitle === undefined || postTitle === null) {
       postTitle = '';
     }
-    
+
     const postCategory = category || "short";
     const dateCreated = date ? new Date(date) : new Date();
-    
+
     // Create post parameters
     const postParams = {
       description: content,
@@ -1142,33 +1160,44 @@ app.post('/api/create-text-post', apiAuth, async (req, res) => {
       categories: [postCategory],
       dateCreated: dateCreated
     };
-    
+
     // Create and save the post
     const post = new Post(postParams);
     const postId = await post.save();
+    log(`Post saved: ${postId}`);
 
-    // Rebuild the site
-    await buildSite();
-
-    // Cross-post to Mastodon
-    const mastodonResult = await mastodon.crossPost({
-      type: postCategory,
-      title: postTitle,
-      content: content,
-      dateCreated: dateCreated,
-      slug: post.slug
-    });
-
-    // Return success response
+    // Return success response immediately
     res.json({
       success: true,
       postId: postId,
-      message: "Text post created successfully",
+      message: "Text post created. Site rebuild in progress.",
       title: postTitle,
       category: postCategory,
-      date: dateCreated.toISOString(),
-      mastodon: mastodonResult ? { url: mastodonResult.url } : null
+      date: dateCreated.toISOString()
     });
+    log('Response sent to client');
+
+    // Run site rebuild and Mastodon cross-post in background (don't await)
+    (async () => {
+      try {
+        await buildSite();
+        log('Site rebuilt');
+
+        const mastodonResult = await mastodon.crossPost({
+          type: postCategory,
+          title: postTitle,
+          content: content,
+          dateCreated: dateCreated,
+          slug: post.slug
+        });
+        if (mastodonResult) {
+          log(`Mastodon post created: ${mastodonResult.url}`);
+        }
+      } catch (bgError) {
+        console.error('[create-text-post] Background task error:', bgError);
+      }
+    })();
+
   } catch (error) {
     console.error("Error creating text post:", error);
     res.status(500).json({
