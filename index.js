@@ -1232,20 +1232,36 @@ app.get('/api/categories', apiAuth, async (req, res) => {
  * GET /api/recent-posts
  * Returns recent posts
  */
+// Strip basic Markdown syntax and return a short plain-text preview
+function makePreview(text, maxLen = 120) {
+  if (!text) return '';
+  const stripped = text
+    .replace(/!\[.*?\]\(.*?\)/g, '')          // remove images
+    .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1') // links → label text
+    .replace(/<!--[\s\S]*?-->/g, '')           // HTML comments
+    .replace(/^#{1,6}\s+/gm, '')              // headings
+    .replace(/[*_`~]/g, '')                   // bold/italic/code/strike
+    .replace(/\n+/g, ' ')                     // collapse newlines
+    .trim();
+  if (stripped.length <= maxLen) return stripped;
+  return stripped.slice(0, maxLen).trimEnd() + '\u2026';
+}
+
 app.get('/api/recent-posts', apiAuth, async (req, res) => {
   try {
     const count = parseInt(req.query.count) || 5;
-    
+
     // Reuse the getRecentPosts function
     const posts = await getRecentPosts([null, process.env.BLOG_USER, process.env.BLOG_PW, count]);
-    
+
     // Simplify the response format
     const simplifiedPosts = posts.map(post => ({
       id: post.postid,
       title: post.title,
       date: post.dateCreated,
       category: post.categories[0],
-      link: post.link
+      link: post.link,
+      preview: makePreview(post.description)
     }));
     
     res.json({ 
