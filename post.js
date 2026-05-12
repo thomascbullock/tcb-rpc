@@ -272,7 +272,7 @@ class Post {
     const content = await fs.readFile(filePath, 'utf8');
     
     // Extract front matter
-    const frontMatterMatch = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+    const frontMatterMatch = content.match(/^--- *\n([\s\S]*?)\n--- *\n([\s\S]*)$/);
     
     if (!frontMatterMatch) {
       throw new Error('Invalid post format: front matter not found');
