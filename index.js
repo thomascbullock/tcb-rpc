@@ -1113,6 +1113,29 @@ app.post('/api/upload-photo', apiAuth, upload.single('photo'), async (req, res) 
 });
 
 /**
+ * POST /api/upload-image
+ * Uploads an image and returns its URL — does not create a post.
+ * Used by the iOS app to embed images inline in any post type.
+ */
+app.post('/api/upload-image', apiAuth, upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, error: 'No image provided' });
+    }
+    const fileName = `${Date.now()}-${crypto.randomBytes(4).toString('hex')}.jpg`;
+    const mediaObject = new MediaObject(
+      { name: fileName, bits: req.file.buffer, type: req.file.mimetype || 'image/jpeg' },
+      { maxWidth: 1500, maxHeight: 1500, quality: 80 }
+    );
+    const result = await mediaObject.save();
+    res.json({ success: true, url: result.url });
+  } catch (error) {
+    console.error('Error uploading image:', error);
+    res.status(500).json({ success: false, error: error.message || 'Upload failed' });
+  }
+});
+
+/**
  * POST /api/create-text-post
  * Creates a new text post
  * 
@@ -1232,6 +1255,13 @@ app.get('/api/categories', apiAuth, async (req, res) => {
  * GET /api/recent-posts
  * Returns recent posts
  */
+// Extract the URL of the first image in a Markdown string
+function extractFirstImageUrl(text) {
+  if (!text) return null;
+  const match = text.match(/!\[.*?\]\(([^\s\)]+)\)/);
+  return match ? match[1] : null;
+}
+
 // Strip basic Markdown syntax and return a short plain-text preview
 function makePreview(text, maxLen = 120) {
   if (!text) return '';
@@ -1261,7 +1291,8 @@ app.get('/api/recent-posts', apiAuth, async (req, res) => {
       date: post.dateCreated,
       category: post.categories[0],
       link: post.link,
-      preview: makePreview(post.description)
+      preview: makePreview(post.description),
+      thumbnail: extractFirstImageUrl(post.description)
     }));
     
     res.json({ 
