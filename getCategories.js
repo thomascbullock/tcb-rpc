@@ -1,8 +1,8 @@
 const auth = require('./auth').auth;
 const authError = require('./auth').authError;
 
-exports.getCategories = function(params){
-	if (!auth(params)) {
+exports.getCategories = async function(params){
+	if (!(await auth(params))) {
 		return authError();
 	}
 	const categoriesObj1 = {

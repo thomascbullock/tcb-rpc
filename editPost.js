@@ -9,7 +9,7 @@ const Post = require('./post');
 exports.editPost = async function(params) {
   try {
     // Authenticate
-    if (!auth(params)) {
+    if (!(await auth(params))) {
       return authError();
     }
     

@@ -4,64 +4,147 @@ const crypto = require('crypto');
 const fs = require('fs-extra');
 const multer = require('multer');
 
-const { createApiAuth } = require('../lib/apiAuth');
-const { buildSite, updateForPost } = require('../lib/build');
+const { updateForPost } = require('../lib/build');
+const {
+  verifyPassword,
+  requireAuth,
+  requireCsrf,
+  newCsrfToken,
+} = require('../lib/auth');
 const Post = require('../post');
 const MediaObject = require('../mediaObject');
 const mastodon = require('../mastodon');
-const { getRecentPosts } = require('../getRecentPosts');
-const { getCategories } = require('../getCategories');
+const Postmaster = require('../postMaster');
 const { getApod } = require('../getApod');
 
-// Load the posting page HTML once at startup.
+const CATEGORIES = ['long', 'short', 'photo'];
+
+// Load static HTML views once at startup.
 const POST_PAGE_HTML = fs.readFileSync(
   path.join(__dirname, '..', 'views', 'post.html'),
   'utf8'
 );
+const LOGIN_PAGE_HTML = fs.readFileSync(
+  path.join(__dirname, '..', 'views', 'login.html'),
+  'utf8'
+);
 
-// Extract the URL of the first image in a Markdown string.
 function extractFirstImageUrl(text) {
   if (!text) return null;
   const match = text.match(/!\[.*?\]\(([^\s\)]+)\)/);
   return match ? match[1] : null;
 }
 
-// Strip basic Markdown syntax and return a short plain-text preview.
 function makePreview(text, maxLen = 120) {
   if (!text) return '';
   const stripped = text
-    .replace(/!\[.*?\]\(.*?\)/g, '')          // remove images
-    .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1') // links → label text
-    .replace(/<!--[\s\S]*?-->/g, '')           // HTML comments
-    .replace(/^#{1,6}\s+/gm, '')              // headings
-    .replace(/[*_`~]/g, '')                   // bold/italic/code/strike
-    .replace(/\n+/g, ' ')                     // collapse newlines
+    .replace(/!\[.*?\]\(.*?\)/g, '')
+    .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1')
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/[*_`~]/g, '')
+    .replace(/\n+/g, ' ')
     .trim();
   if (stripped.length <= maxLen) return stripped;
   return stripped.slice(0, maxLen).trimEnd() + '…';
 }
 
-function createApiRouter() {
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ));
+}
+
+function renderLoginPage({ next = '/post', error = null } = {}) {
+  const nextSafe = escapeHtml(next);
+  const errorHtml = error
+    ? `<div class="error">${escapeHtml(error)}</div>`
+    : '';
+  return LOGIN_PAGE_HTML
+    .replace('__LOGIN_ACTION__', '/login')
+    .replace('__NEXT__', nextSafe)
+    .replace('__ERROR__', errorHtml);
+}
+
+function createApiRouter({ loginLimiter } = {}) {
   const router = express.Router();
-  const apiAuth = createApiAuth();
 
   const upload = multer({
     storage: multer.memoryStorage(),
-    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+    limits: { fileSize: 10 * 1024 * 1024 },
   });
 
-  // Mobile posting page (protected).
-  router.get('/post', apiAuth, (req, res) => {
-    res.type('html').send(POST_PAGE_HTML);
+  // ---------- Session auth: login / logout ----------
+
+  router.get('/login', (req, res) => {
+    if (req.session && req.session.authenticated) {
+      return res.redirect(req.query.next && String(req.query.next).startsWith('/') ? String(req.query.next) : '/post');
+    }
+    res.type('html').send(renderLoginPage({ next: String(req.query.next || '/post') }));
   });
 
-  // Health check.
+  const loginPost = async (req, res) => {
+    const username = String(req.body.username || '').trim();
+    const password = String(req.body.password || '');
+    const next = String(req.body.next || '/post');
+    const safeNext = next.startsWith('/') && !next.startsWith('//') ? next : '/post';
+
+    if (!username || !password) {
+      return res.status(400).type('html').send(renderLoginPage({ next: safeNext, error: 'Username and password are required.' }));
+    }
+
+    if (username !== process.env.BLOG_USER || !(await verifyPassword(password))) {
+      // Same generic message for both failures — don't leak which field was wrong.
+      return res.status(401).type('html').send(renderLoginPage({ next: safeNext, error: 'Invalid username or password.' }));
+    }
+
+    // Regenerate session state on successful login.
+    req.session.authenticated = true;
+    req.session.user = username;
+    req.session.csrf = newCsrfToken();
+
+    res.redirect(safeNext);
+  };
+  if (loginLimiter) {
+    router.post('/login', loginLimiter, loginPost);
+  } else {
+    router.post('/login', loginPost);
+  }
+
+  router.post('/logout', (req, res) => {
+    req.session = null;
+    res.redirect('/login');
+  });
+  router.get('/logout', (req, res) => {
+    req.session = null;
+    res.redirect('/login');
+  });
+
+  // ---------- CSRF token endpoint (session-only) ----------
+  router.get('/api/csrf', requireAuth, (req, res) => {
+    if (req.authMethod !== 'session') {
+      // Basic Auth callers don't need CSRF tokens.
+      return res.status(400).json({ success: false, error: 'CSRF token is only for session-based clients' });
+    }
+    if (!req.session.csrf) {
+      req.session.csrf = newCsrfToken();
+    }
+    res.json({ token: req.session.csrf });
+  });
+
+  // ---------- Public ----------
   router.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
   });
 
-  // Photo upload + post creation.
-  router.post('/api/upload-photo', apiAuth, upload.single('photo'), async (req, res) => {
+  // ---------- Posting page (requires auth) ----------
+  router.get('/post', requireAuth, (req, res) => {
+    res.type('html').send(POST_PAGE_HTML);
+  });
+
+  // ---------- Mutations (auth + CSRF for session, auth only for Basic) ----------
+
+  router.post('/api/upload-photo', requireAuth, requireCsrf, upload.single('photo'), async (req, res) => {
     const startTime = Date.now();
     const log = (msg) => console.log(`[upload-photo] ${msg} (+${Date.now() - startTime}ms)`);
 
@@ -96,9 +179,7 @@ function createApiRouter() {
       log(`Image processed and saved: ${mediaResult.name}`);
 
       let markdown = `![${title || 'Photo'}](${mediaResult.url})`;
-      if (caption) {
-        markdown += `\n\n${caption}`;
-      }
+      if (caption) markdown += `\n\n${caption}`;
       markdown += `\n\n<!-- Image: ${mediaResult.name} | Size: ${Math.round(mediaResult.size / 1024)} KB | Type: ${mediaResult.type} -->`;
 
       const post = new Post({
@@ -141,24 +222,18 @@ function createApiRouter() {
             imageBuffer: req.file.buffer,
             imageMimeType: req.file.mimetype,
           });
-          if (mastodonResult) {
-            log(`Mastodon post created: ${mastodonResult.url}`);
-          }
+          if (mastodonResult) log(`Mastodon post created: ${mastodonResult.url}`);
         } catch (bgError) {
           console.error('[upload-photo] Background task error:', bgError);
         }
       })();
     } catch (error) {
       console.error('Error handling mobile upload:', error);
-      res.status(500).json({
-        success: false,
-        error: error.message || 'An unknown error occurred',
-      });
+      res.status(500).json({ success: false, error: error.message || 'An unknown error occurred' });
     }
   });
 
-  // Image upload only — returns URL, doesn't create a post. Used by the iOS app.
-  router.post('/api/upload-image', apiAuth, upload.single('image'), async (req, res) => {
+  router.post('/api/upload-image', requireAuth, requireCsrf, upload.single('image'), async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ success: false, error: 'No image provided' });
@@ -176,8 +251,7 @@ function createApiRouter() {
     }
   });
 
-  // Create a text post.
-  router.post('/api/create-text-post', apiAuth, async (req, res) => {
+  router.post('/api/create-text-post', requireAuth, requireCsrf, async (req, res) => {
     const startTime = Date.now();
     const log = (msg) => console.log(`[create-text-post] ${msg} (+${Date.now() - startTime}ms)`);
 
@@ -225,67 +299,43 @@ function createApiRouter() {
             dateCreated,
             slug: post.slug,
           });
-          if (mastodonResult) {
-            log(`Mastodon post created: ${mastodonResult.url}`);
-          }
+          if (mastodonResult) log(`Mastodon post created: ${mastodonResult.url}`);
         } catch (bgError) {
           console.error('[create-text-post] Background task error:', bgError);
         }
       })();
     } catch (error) {
       console.error('Error creating text post:', error);
-      res.status(500).json({
-        success: false,
-        error: error.message || 'An unknown error occurred',
-      });
+      res.status(500).json({ success: false, error: error.message || 'An unknown error occurred' });
     }
   });
 
-  // Categories.
-  router.get('/api/categories', apiAuth, async (req, res) => {
-    try {
-      const categories = await getCategories([null, process.env.BLOG_USER, process.env.BLOG_PW]);
-      res.json({
-        success: true,
-        categories: categories.map((cat) => cat.categoryName),
-      });
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-      res.status(500).json({
-        success: false,
-        error: error.message || 'An unknown error occurred',
-      });
-    }
+  router.get('/api/categories', requireAuth, (req, res) => {
+    res.json({ success: true, categories: CATEGORIES });
   });
 
-  // Recent posts.
-  router.get('/api/recent-posts', apiAuth, async (req, res) => {
+  router.get('/api/recent-posts', requireAuth, async (req, res) => {
     try {
       const count = parseInt(req.query.count, 10) || 5;
-      const posts = await getRecentPosts([null, process.env.BLOG_USER, process.env.BLOG_PW, count]);
-
-      const simplifiedPosts = posts.map((post) => ({
+      const pm = new Postmaster();
+      await pm.build('editor');
+      const slice = pm.all.slice(0, count).map((post) => ({
         id: post.postid,
         title: post.title,
         date: post.dateCreated,
-        category: post.categories[0],
-        link: post.link,
-        preview: makePreview(post.description),
-        thumbnail: extractFirstImageUrl(post.description),
+        category: post.type,
+        link: path.join('https://thomascbullock.com/posts', post.path, post.slug),
+        preview: makePreview(post.body),
+        thumbnail: extractFirstImageUrl(post.body),
       }));
-
-      res.json({ success: true, posts: simplifiedPosts });
-    } catch (error) {
-      console.error('Error fetching recent posts:', error);
-      res.status(500).json({
-        success: false,
-        error: error.message || 'An unknown error occurred',
-      });
+      res.json({ success: true, posts: slice });
+    } catch (err) {
+      console.error('recent-posts error:', err);
+      res.status(500).json({ success: false, error: err.message });
     }
   });
 
-  // Load a single post for editing.
-  router.get('/api/post/:id', apiAuth, async (req, res) => {
+  router.get('/api/post/:id', requireAuth, async (req, res) => {
     try {
       const post = await Post.loadById(req.params.id);
       res.json({
@@ -300,15 +350,11 @@ function createApiRouter() {
       });
     } catch (error) {
       console.error('Error fetching post:', error);
-      res.status(404).json({
-        success: false,
-        error: error.message || 'Post not found',
-      });
+      res.status(404).json({ success: false, error: error.message || 'Post not found' });
     }
   });
 
-  // Update an existing post.
-  router.put('/api/edit-post/:id', apiAuth, async (req, res) => {
+  router.put('/api/edit-post/:id', requireAuth, requireCsrf, async (req, res) => {
     try {
       const postId = req.params.id;
       const { title, content, category } = req.body;
@@ -339,15 +385,11 @@ function createApiRouter() {
       });
     } catch (error) {
       console.error('Error updating post:', error);
-      res.status(500).json({
-        success: false,
-        error: error.message || 'An unknown error occurred',
-      });
+      res.status(500).json({ success: false, error: error.message || 'An unknown error occurred' });
     }
   });
 
-  // Delete a post.
-  router.delete('/api/delete-post/:id', apiAuth, async (req, res) => {
+  router.delete('/api/delete-post/:id', requireAuth, requireCsrf, async (req, res) => {
     try {
       const post = await Post.loadById(req.params.id);
       const dateCreated = post.dateCreated;
@@ -359,26 +401,18 @@ function createApiRouter() {
       res.json({ success: true, message: 'Post deleted successfully' });
     } catch (error) {
       console.error('Error deleting post:', error);
-      res.status(500).json({
-        success: false,
-        error: error.message || 'An unknown error occurred',
-      });
+      res.status(500).json({ success: false, error: error.message || 'An unknown error occurred' });
     }
   });
 
-  // APOD (NASA Astronomy Picture of the Day).
   router.get('/api/apod', async (req, res) => {
     console.log('made it to apod handler');
     try {
       const apodResponse = await getApod();
-      await buildSite();
       res.send(apodResponse);
     } catch (error) {
       console.error('Error getting APOD', error);
-      res.status(500).json({
-        success: false,
-        error: error.message || 'An unknown error occurred',
-      });
+      res.status(500).json({ success: false, error: error.message || 'An unknown error occurred' });
     }
   });
 

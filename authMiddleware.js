@@ -14,7 +14,7 @@ const { auth, authError } = require('./auth');
  */
 exports.withAuth = function(handler, usernameIndex = 1, passwordIndex = 2) {
   return async function(params) {
-    if (!auth(params, usernameIndex, passwordIndex)) {
+    if (!(await auth(params, usernameIndex, passwordIndex))) {
       return authError();
     }
     
@@ -38,7 +38,7 @@ exports.withAuthAndReorder = function(handler, order, usernameIndex = 1, passwor
       reorderedParams.push(params[index]);
     }
     
-    if (!auth(reorderedParams, usernameIndex, passwordIndex)) {
+    if (!(await auth(reorderedParams, usernameIndex, passwordIndex))) {
       return authError();
     }
     

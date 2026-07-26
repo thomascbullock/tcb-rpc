@@ -48,7 +48,7 @@ exports.deletePost = async function(params) {
     
     // Validate credentials
     const authParams = [null, user, pw]; // Auth function expects username at index 1, password at index 2
-    if (!auth(authParams)) {
+    if (!(await auth(authParams))) {
       console.error('Authentication failed');
       return authError();
     }

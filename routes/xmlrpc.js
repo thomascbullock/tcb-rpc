@@ -99,17 +99,17 @@ const methods = {
   'metaWeblog.newMediaObject': { handler: newMediaObject },
 };
 
-function createXmlRpcRouter() {
+function createXmlRpcRouter({ xmlrpcPath = '/xmlrpc', limiter } = {}) {
   const router = express.Router();
 
-  // Capture the raw XML body for /xmlrpc requests specifically. Other routes
-  // are unaffected by this middleware.
+  // Capture the raw XML body for the xmlrpc endpoint specifically. Other
+  // routes are unaffected by this middleware.
   router.use(
-    '/xmlrpc',
+    xmlrpcPath,
     express.text({ type: ['text/xml', 'application/xml', '*/xml'], limit: '10mb' })
   );
 
-  router.post('/xmlrpc', async (req, res) => {
+  const handler = async (req, res) => {
     res.set('Content-Type', 'text/xml');
 
     let methodName;
@@ -152,7 +152,13 @@ function createXmlRpcRouter() {
     }
 
     res.send(serializeResponse(result));
-  });
+  };
+
+  if (limiter) {
+    router.post(xmlrpcPath, limiter, handler);
+  } else {
+    router.post(xmlrpcPath, handler);
+  }
 
   return router;
 }

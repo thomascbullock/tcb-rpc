@@ -10,7 +10,7 @@ const path = require("path");
 exports.getRecentPosts = async function (params) {
   try {
     // Check authentication
-    if (!auth(params)) {
+    if (!(await auth(params))) {
       return authError();
     }
     

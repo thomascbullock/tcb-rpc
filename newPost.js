@@ -9,7 +9,7 @@ const mastodon = require('./mastodon');
 
 exports.newPost = async function(params) {
   try {
-    if (!auth(params)) {
+    if (!(await auth(params))) {
       return authError();
     }
     

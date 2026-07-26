@@ -367,6 +367,7 @@
         <h1>Post to T</h1>
         <p>Create a new post from your mobile device</p>
         <a href="/" class="home-link">← Back to site</a>
+        <a href="/logout" class="home-link">Log out</a>
     </div>
 
     <div class="post-type-selector">
@@ -479,8 +480,27 @@
     </div>
 
     <script>
-        // Authentication will be handled by server-side Basic Auth
+        // Auth is via the session cookie (set by /login). Every state-changing
+        // request also includes an X-CSRF-Token header fetched from /api/csrf.
         const API_BASE = window.location.origin;
+        let CSRF_TOKEN = null;
+
+        async function loadCsrfToken() {
+            try {
+                const r = await fetch(`${API_BASE}/api/csrf`, { credentials: 'same-origin' });
+                if (!r.ok) throw new Error(`csrf fetch ${r.status}`);
+                const data = await r.json();
+                CSRF_TOKEN = data.token;
+            } catch (err) {
+                console.error('Failed to load CSRF token:', err);
+            }
+        }
+
+        function csrfHeaders(extra = {}) {
+            const headers = { ...extra };
+            if (CSRF_TOKEN) headers['X-CSRF-Token'] = CSRF_TOKEN;
+            return headers;
+        }
 
         // Post type switching
         document.querySelectorAll('.post-type-btn').forEach(btn => {
@@ -576,9 +596,8 @@
                     // Update existing post
                     response = await fetch(`${API_BASE}/api/edit-post/${editingPostId}`, {
                         method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
+                        credentials: 'same-origin',
+                        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
                         body: JSON.stringify({
                             title: title || '',
                             content: content,
@@ -589,9 +608,8 @@
                     // Create new post
                     response = await fetch(`${API_BASE}/api/create-text-post`, {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
+                        credentials: 'same-origin',
+                        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
                         body: JSON.stringify({
                             title: title || undefined,
                             content: content,
@@ -653,6 +671,8 @@
 
                 const response = await fetch(`${API_BASE}/api/upload-photo`, {
                     method: 'POST',
+                    credentials: 'same-origin',
+                    headers: csrfHeaders(),
                     body: formData
                 });
 
@@ -688,7 +708,7 @@
         // Load recent posts on page load
         async function loadRecentPosts() {
             try {
-                const response = await fetch(`${API_BASE}/api/recent-posts?count=10`);
+                const response = await fetch(`${API_BASE}/api/recent-posts?count=10`, { credentials: 'same-origin' });
                 const data = await response.json();
 
                 const list = document.getElementById('recent-posts-list');
@@ -724,7 +744,7 @@
         async function editPost(postId) {
             try {
                 showLoading();
-                const response = await fetch(`${API_BASE}/api/post/${postId}`);
+                const response = await fetch(`${API_BASE}/api/post/${postId}`, { credentials: 'same-origin' });
                 const data = await response.json();
 
                 if (data.success) {
@@ -774,7 +794,9 @@
             try {
                 showLoading();
                 const response = await fetch(`${API_BASE}/api/delete-post/${postId}`, {
-                    method: 'DELETE'
+                    method: 'DELETE',
+                    credentials: 'same-origin',
+                    headers: csrfHeaders()
                 });
                 const data = await response.json();
 
@@ -797,8 +819,9 @@
         }
 
         // Initialize on page load
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             console.log('Mobile posting page loaded');
+            await loadCsrfToken();
             loadRecentPosts();
         });
     </script>

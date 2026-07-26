@@ -2,7 +2,7 @@ const auth = require('./auth').auth;
 const authError = require('./auth').authError;
 
 exports.getUsersBlogs = async function(params) {
-  if (!auth(params)) {
+  if (!(await auth(params))) {
     return authError();
   }
   

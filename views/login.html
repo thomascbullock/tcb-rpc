@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log in — T</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background: #fff;
+            color: #222;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .card {
+            width: 100%;
+            max-width: 360px;
+            border: 2px solid #eee;
+            border-radius: 12px;
+            padding: 32px 28px;
+        }
+        h1 {
+            font-size: 1.4em;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        label {
+            display: block;
+            font-size: 0.9em;
+            margin: 12px 0 6px;
+            color: #333;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+        }
+        input:focus { outline: none; border-color: #222; }
+        button {
+            width: 100%;
+            margin-top: 20px;
+            padding: 14px;
+            background: #222;
+            color: #fff;
+            border: 0;
+            border-radius: 22px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover { background: #444; }
+        .error {
+            margin-top: 16px;
+            padding: 10px 12px;
+            background: #f8d7da;
+            color: #721c24;
+            border-radius: 6px;
+            font-size: 0.9em;
+        }
+        .home-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+        .home-link:hover { color: #222; }
+    </style>
+</head>
+<body>
+    <form class="card" method="post" action="__LOGIN_ACTION__">
+        <h1>Log in to post</h1>
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" autocomplete="username" required autofocus>
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" autocomplete="current-password" required>
+        <input type="hidden" name="next" value="__NEXT__">
+        <button type="submit">Log in</button>
+        __ERROR__
+        <a href="/" class="home-link">← Back to site</a>
+    </form>
+</body>
+</html>

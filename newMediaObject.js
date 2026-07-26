@@ -9,7 +9,7 @@ const MediaObject = require('./mediaObject');
 exports.newMediaObject = async function(params) {
   try {
     // Authenticate user
-    if (!auth(params)) {
+    if (!(await auth(params))) {
       return authError();
     }
 

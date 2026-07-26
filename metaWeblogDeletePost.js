@@ -6,7 +6,7 @@ exports.metaWeblogDeletePost = async function(params) {
   // MetaWeblog API deletePost parameters:
   // string postid, string username, string password, boolean publish
   
-  if (!auth(params)) {
+  if (!(await auth(params))) {
     return authError();
   }
   
