@@ -28,6 +28,17 @@ app.use(cors());
 
 app.use(createApiRouter());
 
+// Serve uploaded images directly from ./img instead of copying them
+// into build/img/ on every rebuild.
+app.use(
+  '/img',
+  express.static('./img', {
+    maxAge: '1y',
+    immutable: true,
+    etag: false,
+  })
+);
+
 app.use(
   express.static('./build', {
     extensions: ['html'],

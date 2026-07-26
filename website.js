@@ -2,11 +2,10 @@
 const fs = require("fs-extra");
 const path = require("path");
 const moment = require("moment");
-// Enable HTML in markdown-it for proper image rendering
 const md = require("markdown-it")({
-  html: true,        // Enable HTML tags in source
-  linkify: true,     // Autoconvert URL-like text to links
-  typographer: true  // Enable smart quotes and other typographic replacements
+  html: true,
+  linkify: true,
+  typographer: true,
 });
 const Postmaster = require("./postMaster");
 const Page = require("./page_template_new");
@@ -14,326 +13,254 @@ const RSSGenerator = require('./rssGenerator');
 
 const outputPath = "./build";
 const pageTypes = ["long", "short", "photo", "all"];
+const POSTS_PER_PAGE = 10;
 
 class Website {
   constructor() {
     this.postmaster = new Postmaster();
-    this.createdPermalinks = []; // Track created permalinks for debugging
+    this.createdPermalinks = [];
   }
 
-  async setup() {
-    for (const file of fs.readdirSync(outputPath)) {
-      fs.removeSync(path.join(outputPath, file));
+  // Ensure the on-disk tree matches what the renderers expect. Called by both
+  // full and incremental builds; safe to run multiple times.
+  async ensureDirs() {
+    await fs.ensureDir(outputPath);
+    await fs.ensureDir(path.join(outputPath, "css"));
+    for (const t of pageTypes) {
+      await fs.ensureDir(path.join(outputPath, "posts", t));
     }
+    await fs.ensureDir(path.join(outputPath, "feeds"));
+  }
+
+  async copyStaticAssets() {
+    await fs.copyFile("reset.css", path.join(outputPath, "css", "reset.css"));
+    await fs.copyFile("style.css", path.join(outputPath, "css", "style.css"));
+  }
+
+  async loadPosts() {
+    await this.postmaster.build();
+  }
+
+  // Full-build setup: nuke build/ and start fresh.
+  async setup() {
     await fs.ensureDir(outputPath);
     for (const file of fs.readdirSync(outputPath)) {
       await fs.remove(path.join(outputPath, file));
     }
-    await fs.ensureDir(path.join(outputPath, "css"));
-    await fs.ensureDir(path.join(outputPath, "img"));
-    await fs.ensureDir(path.join(outputPath, "posts", "long"));
-    await fs.ensureDir(path.join(outputPath, "posts", "all"));
-    await fs.ensureDir(path.join(outputPath, "posts", "photo"));
-    await fs.ensureDir(path.join(outputPath, "posts", "short"));
-    await fs.ensureDir(path.join(outputPath, "feeds"));
-
-    await fs.copyFile("reset.css", path.join(outputPath, "css", "reset.css"));
-    await fs.copyFile("style.css", path.join(outputPath, "css", "style.css"));
-    
-    // Copy all images
-    if (await fs.pathExists("img")) {
-      for (const imgFile of fs.readdirSync("img")) {
-        await fs.copyFile(
-          path.join("img", imgFile),
-          path.join(outputPath, "img", imgFile)
-        );
-      }
-    }
-    
-    await this.postmaster.build();
+    await this.ensureDirs();
+    await this.copyStaticAssets();
+    await this.loadPosts();
   }
 
-  /**
-   * Enhanced buildSinglePages method with better permalink support
-   * Creates individual pages for ALL post types including photos and short posts
-   */
+  // Build the permalink page for the post at position i in postmaster.all.
+  async buildSinglePageAt(i) {
+    const posts = this.postmaster.all;
+    const currentPost = posts[i];
+
+    const postDir = path.join(outputPath, 'posts', currentPost.path);
+    await fs.ensureDir(postDir);
+
+    let footerPrevious;
+    let footerNext;
+
+    if (i > 0) {
+      footerPrevious = path.join(
+        "/posts",
+        posts[i - 1].path,
+        posts[i - 1].slug
+      );
+    }
+    if (i < posts.length - 1) {
+      footerNext = path.join(
+        "/posts",
+        posts[i + 1].path,
+        posts[i + 1].slug
+      );
+    }
+
+    const singleBodyBag = [
+      {
+        title: currentPost.title,
+        dateCreated: currentPost.dateCreated,
+        dateTime: currentPost.dateTime,
+        body: currentPost.body,
+        href: path.join("/posts", currentPost.path, currentPost.slug),
+      },
+    ];
+
+    let pageTitle = 'T';
+    if (currentPost.title) {
+      pageTitle = currentPost.title;
+    } else {
+      const postDate = moment(currentPost.dateCreated || currentPost.dateTime).format('MMMM Do, YYYY');
+      switch (currentPost.type) {
+        case 'photo':
+          pageTitle = `Photo from ${postDate}`;
+          break;
+        default:
+          pageTitle = `Post from ${postDate}`;
+      }
+    }
+
+    const singlePage = new Page({
+      title: pageTitle,
+      bodyBag: singleBodyBag,
+      footerPrevious,
+      footerNext,
+      fileName: currentPost.slug,
+      fileDir: postDir,
+    });
+    await singlePage.savePage();
+
+    this.createdPermalinks.push({
+      type: currentPost.type,
+      title: currentPost.title || '(no title)',
+      filePath: path.join(postDir, `${currentPost.slug}.html`),
+      urlPath: path.join("/posts", currentPost.path, currentPost.slug),
+      slug: currentPost.slug,
+    });
+  }
+
   async buildSinglePages() {
     console.log(`Building individual permalinks for ${this.postmaster.all.length} posts...`);
-    
     for (let i = 0; i < this.postmaster.all.length; i++) {
-      const currentPost = this.postmaster.all[i];
-      
-      // Create directory structure based on date path
-      const postDir = path.join(outputPath, 'posts', currentPost.path);
-      await fs.ensureDir(postDir);
-      
-      console.log(`Building permalink for ${currentPost.type} post: ${currentPost.slug}`);
-      
-      // Navigation setup
-      let footerPrevious, footerNext;
-      
-      if (i === 0) {
-        // First post - only show next
-        if (this.postmaster.all.length > 1) {
-          footerNext = path.join(
-            "/posts",
-            this.postmaster.all[i + 1].path,
-            this.postmaster.all[i + 1].slug
-          );
-        }
-      } else if (i > 0 && i < this.postmaster.all.length - 1) {
-        // Middle posts - show both previous and next
-        footerPrevious = path.join(
-          "/posts",
-          this.postmaster.all[i - 1].path,
-          this.postmaster.all[i - 1].slug
-        );
-        footerNext = path.join(
-          "/posts",
-          this.postmaster.all[i + 1].path,
-          this.postmaster.all[i + 1].slug
-        );
-      } else {
-        // Last post - only show previous
-        footerPrevious = path.join(
-          "/posts",
-          this.postmaster.all[i - 1].path,
-          this.postmaster.all[i - 1].slug
-        );
-      }
-
-      // Create body bag for the individual post
-      const singleBodyBag = [
-        {
-          title: currentPost.title,
-          dateCreated: currentPost.dateCreated,
-          dateTime: currentPost.dateTime,
-          body: currentPost.body,
-          href: path.join("/posts", currentPost.path, currentPost.slug),
-        },
-      ];
-
-      // Determine page title
-      let pageTitle = 'T'; // Default
-      if (currentPost.title) {
-        pageTitle = currentPost.title;
-      } else {
-        // Provide meaningful titles for posts without explicit titles
-        const postDate = moment(currentPost.dateCreated || currentPost.dateTime).format('MMMM Do, YYYY');
-        switch (currentPost.type) {
-          case 'photo':
-            pageTitle = `Photo from ${postDate}`;
-            break;
-          case 'short':
-            pageTitle = `Post from ${postDate}`;
-            break;
-          default:
-            pageTitle = `Post from ${postDate}`;
-        }
-      }
-
-      // Create the individual post page
-      const singlePage = new Page({
-        title: pageTitle,
-        bodyBag: singleBodyBag,
-        footerPrevious,
-        footerNext,
-        fileName: currentPost.slug,
-        fileDir: postDir,
-      });
-      
-      await singlePage.savePage();
-      
-      // Track created permalink for verification
-      const permalinkPath = path.join(postDir, `${currentPost.slug}.html`);
-      const urlPath = path.join("/posts", currentPost.path, currentPost.slug);
-      
-      this.createdPermalinks.push({
-        type: currentPost.type,
-        title: currentPost.title || '(no title)',
-        filePath: permalinkPath,
-        urlPath: urlPath,
-        slug: currentPost.slug
-      });
-      
-      console.log(`✓ Created ${currentPost.type} permalink: ${urlPath}`);
+      await this.buildSinglePageAt(i);
     }
-    
-    // Summary of created permalinks
-    console.log('\n=== PERMALINK SUMMARY ===');
+
     const typeCount = this.createdPermalinks.reduce((acc, link) => {
       acc[link.type] = (acc[link.type] || 0) + 1;
       return acc;
     }, {});
-    
-    Object.entries(typeCount).forEach(([type, count]) => {
+    console.log('=== PERMALINK SUMMARY ===');
+    for (const [type, count] of Object.entries(typeCount)) {
       console.log(`${type}: ${count} permalinks created`);
-    });
-    
-    // Show some examples
-    console.log('\n=== EXAMPLE PERMALINKS ===');
-    ['photo', 'short', 'long'].forEach(type => {
-      const example = this.createdPermalinks.find(link => link.type === type);
-      if (example) {
-        console.log(`${type}: ${example.urlPath}`);
-      }
-    });
+    }
   }
 
-  /**
-   * Enhanced buildMultiPages with improved post type handling
-   */
-  async buildMultiPages() {
-    let archive = "";
-    
-    for (let pageTypeCounter = 0; pageTypeCounter < pageTypes.length; pageTypeCounter++) {
-      const postType = pageTypes[pageTypeCounter];
-      let bodyBag = [];
-      let pagesCounter = 0;
-      let postsCounter = 0;
+  // Build all paginated collection pages for one type ('long', 'short', 'photo', 'all').
+  async buildTypeCollection(postType) {
+    const posts = this.postmaster[postType];
+    if (!posts || posts.length === 0) return;
 
+    const pageDir = path.join(outputPath, "posts", postType);
+    const pageCount = Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE));
+
+    for (let pageIdx = 0; pageIdx < pageCount; pageIdx++) {
+      const slice = posts.slice(pageIdx * POSTS_PER_PAGE, (pageIdx + 1) * POSTS_PER_PAGE);
+
+      const bodyBag = slice.map((post) => ({
+        title: post.title,
+        dateCreated: post.dateCreated,
+        dateTime: post.dateTime,
+        body: post.body,
+        href: path.join("/posts", post.path, post.slug),
+      }));
+
+      // File naming: page 0 → /posts/<type>/<type>.html, page N → /posts/<type>/<N>.html.
+      // Footer "Previous" points to older content (higher page number); "Next" to newer.
+      const fileName = pageIdx === 0 ? postType : `${pageIdx}`;
+      let footerPrevious;
+      let footerNext;
+      if (pageIdx + 1 < pageCount) {
+        footerPrevious = `/posts/${postType}/${pageIdx + 1}`;
+      }
+      if (pageIdx === 1) {
+        footerNext = `/posts/${postType}/${postType}`;
+      } else if (pageIdx > 1) {
+        footerNext = `/posts/${postType}/${pageIdx - 1}`;
+      }
+
+      const pageOfPosts = new Page({
+        title: "T",
+        bodyBag,
+        footerPrevious,
+        footerNext,
+        fileName,
+        fileDir: pageDir,
+      });
+      await pageOfPosts.savePage();
+      console.log(`✓ Created ${postType} page ${fileName} with ${bodyBag.length} posts`);
+    }
+  }
+
+  async buildMultiPages() {
+    for (const postType of pageTypes) {
       if (this.postmaster[postType] && this.postmaster[postType].length > 0) {
         console.log(`Building ${postType} collection pages...`);
-        
-        for (let totalPostCounter = 0; totalPostCounter < this.postmaster[postType].length; totalPostCounter++) {
-          const currentPost = this.postmaster[postType][totalPostCounter];
-          
-          bodyBag.push({
-            title: currentPost.title,
-            dateCreated: currentPost.dateCreated,
-            dateTime: currentPost.dateTime,
-            body: currentPost.body,
-            href: path.join("/posts", currentPost.path, currentPost.slug), // Link to individual permalink
-          });
-
-          // Build archive (only for titled posts that aren't short posts)
-          if (postType === "all" && currentPost.type !== "short" && currentPost.title !== "") {
-            let displayDate;
-            if (currentPost.dateCreated) {
-              displayDate = new Date(currentPost.dateCreated);
-            } else if (currentPost.dateTime) {
-              displayDate = new Date(currentPost.dateTime);
-            } else {
-              displayDate = new Date();
-            }
-            
-            const postTitle = currentPost.title || '';
-            archive += `${moment(displayDate).format("MMMM Do YYYY")}: [${postTitle}](${path.join("/posts", currentPost.path, currentPost.slug)})\n\n`;
-          }
-
-          // Create page when we hit 10 posts or reach the end
-          if (postsCounter === 9 || totalPostCounter + 1 === this.postmaster[postType].length) {
-            let footerNext, footerPrevious, fileName;
-
-            if (pagesCounter === 0) {
-              if (this.postmaster[postType].length > 10) {
-                footerPrevious = `/posts/${postType}/1`;
-              }
-              fileName = `${postType}`;
-            } else {
-              // Handle pagination
-              if (totalPostCounter + 1 < this.postmaster[postType].length) {
-                footerPrevious = `/posts/${postType}/${pagesCounter + 1}`;
-              }
-              if (pagesCounter === 1) {
-                footerNext = `/posts/${postType}/${postType}`;
-              } else if (pagesCounter > 1) {
-                footerNext = `/posts/${postType}/${pagesCounter - 1}`;
-              }
-              fileName = `${pagesCounter}`;
-            }
-
-            const pageOfPosts = new Page({
-              title: "T",
-              bodyBag,
-              footerPrevious,
-              footerNext,
-              fileName,
-              fileDir: path.join(outputPath, "posts", postType),
-            });
-            
-            await pageOfPosts.savePage();
-            console.log(`✓ Created ${postType} page ${fileName} with ${bodyBag.length} posts`);
-            
-            postsCounter = 0;
-            pagesCounter++;
-            bodyBag = [];
-          } else {
-            postsCounter++;
-          }
-        }
+        await this.buildTypeCollection(postType);
       }
     }
+    await this.buildArchive();
+  }
 
-    // Create archive page
-    const archiveBag = [
-      {
-        title: "Archive",
-        dateTime: Date.now(),
-        body: md.render(archive),
-        href: `/posts/archive`,
-        noDate: true,
-      },
-    ];
-    
+  // Archive lists every titled non-short post. Cheap to regenerate.
+  async buildArchive() {
+    let archive = '';
+    for (const post of this.postmaster.all) {
+      if (post.type === 'short' || !post.title) continue;
+      const displayDate = new Date(post.dateCreated || post.dateTime || Date.now());
+      archive += `${moment(displayDate).format("MMMM Do YYYY")}: [${post.title}](${path.join("/posts", post.path, post.slug)})\n\n`;
+    }
+
+    const archiveBag = [{
+      title: "Archive",
+      dateTime: Date.now(),
+      body: md.render(archive),
+      href: `/posts/archive`,
+      noDate: true,
+    }];
     const archivePage = new Page({
       title: "Archive",
       bodyBag: archiveBag,
       fileName: "archive",
       fileDir: path.join(outputPath, "posts"),
     });
-    
     await archivePage.savePage();
     console.log("✓ Created archive page");
   }
 
   async buildAboutPage() {
-    const aboutBody = await fs.readFile(`./about.md`);
-
-    const aboutBodyBag = [
-      {
-        title: "About",
-        dateTime: Date.now(),
-        body: md.render(aboutBody.toString()),
-        href: "/posts/about",
-        noDate: true,
-      },
-    ];
-
+    const aboutBody = await fs.readFile('./about.md');
+    const aboutBodyBag = [{
+      title: "About",
+      dateTime: Date.now(),
+      body: md.render(aboutBody.toString()),
+      href: "/posts/about",
+      noDate: true,
+    }];
     const aboutPage = new Page({
       title: "About",
       bodyBag: aboutBodyBag,
       fileName: "about",
       fileDir: path.join(outputPath, "posts"),
     });
-
     await aboutPage.savePage();
     console.log("✓ Created about page");
   }
-  
+
   async buildRSSFeeds() {
     try {
       console.log('Generating RSS feeds...');
-      
       const rssGenerator = new RSSGenerator({
         siteUrl: 'https://thomascbullock.com',
         siteTitle: 'T',
-        siteDescription: 'Thom Bullock\'s Blog',
+        siteDescription: "Thom Bullock's Blog",
         outputDir: path.join(outputPath, 'feeds'),
         postmaster: this.postmaster,
-        useBlankTitles: true
+        useBlankTitles: true,
       });
-      
+
       const result = await rssGenerator.generateAllFeeds();
       const jsonFeedPath = await rssGenerator.generateJsonFeed();
-      
+
       console.log('RSS feeds generated:');
-      result.feeds.forEach(feed => {
+      result.feeds.forEach((feed) => {
         console.log(`- ${feed.type}: ${feed.path} (${feed.count} posts)`);
       });
       console.log(`- JSON Feed: ${jsonFeedPath}`);
-      
-      // Create .htaccess for feed redirects
+
+      // .htaccess is a no-op under Express; retained for parity with the
+      // previous build in case anything downstream depends on its presence.
       const htaccessContent = `
 # Feed redirects
 RedirectMatch 301 ^/feed/?$ /feeds/index.xml
@@ -344,34 +271,126 @@ RedirectMatch 301 ^/feeds/long/?$ /feeds/rss-long.xml
 RedirectMatch 301 ^/feeds/short/?$ /feeds/rss-short.xml
 RedirectMatch 301 ^/feeds/photo/?$ /feeds/rss-photo.xml
 `;
-      
       await fs.writeFile(path.join(outputPath, '.htaccess'), htaccessContent);
-      
     } catch (error) {
       console.error('Error building RSS feeds:', error);
+    }
+  }
+
+  /**
+   * Incremental rebuild after a single post was created, edited, or deleted.
+   *
+   * Rewrites just the pages that can be affected: the post's permalink and
+   * its immediate neighbors (whose prev/next links point at it), plus the
+   * paginated collection pages for the affected type + 'all', plus the
+   * archive and RSS feeds.
+   *
+   * For deletes, pass dateCreated so we can locate the post's former
+   * position (the post is already gone from disk by then).
+   *
+   * Does NOT rebuild every permalink, does NOT touch build/img/, does NOT
+   * re-copy CSS. Falls back to fullBuild() on any error.
+   *
+   * @param {Object} opts
+   * @param {string} opts.postId
+   * @param {'save'|'delete'} opts.op
+   * @param {Date|string} [opts.dateCreated] - required for delete
+   * @param {string} [opts.type] - required for delete (the deleted post's type)
+   */
+  async updateForPost({ postId, op, dateCreated, type }) {
+    try {
+      await this.ensureDirs();
+      await this.loadPosts();
+
+      const all = this.postmaster.all;
+      const affectedIndices = new Set();
+      const affectedTypes = new Set(['all']);
+      let deletedPost = null;
+
+      if (op === 'save') {
+        const idx = all.findIndex((p) => p.postid === postId);
+        if (idx === -1) {
+          console.warn(`[incremental] postId ${postId} not found after save; falling back to full build`);
+          await this.orchestrate();
+          return;
+        }
+        if (idx > 0) affectedIndices.add(idx - 1);
+        affectedIndices.add(idx);
+        if (idx < all.length - 1) affectedIndices.add(idx + 1);
+        affectedTypes.add(all[idx].type);
+      } else if (op === 'delete') {
+        // Find the two posts that now sit on either side of the deleted post's
+        // former position. Posts are sorted newest-first.
+        if (!dateCreated) {
+          console.warn('[incremental] delete without dateCreated; falling back to full build');
+          await this.orchestrate();
+          return;
+        }
+        const deletedTime = new Date(dateCreated).getTime();
+        // Find first post older than the deleted one (its new "next" neighbor).
+        const nextIdx = all.findIndex((p) => {
+          const t = new Date(p.dateCreated || p.dateTime).getTime();
+          return t < deletedTime;
+        });
+        if (nextIdx > 0) affectedIndices.add(nextIdx - 1);
+        if (nextIdx !== -1) affectedIndices.add(nextIdx);
+        // If deleted post was the newest, nextIdx is 0 and only newIdx=0's prev changes.
+        // If deleted post was the oldest, nextIdx is -1 and we add the last post below.
+        if (nextIdx === -1 && all.length > 0) affectedIndices.add(all.length - 1);
+
+        // The deleted post's type-specific collection page must be rebuilt so
+        // the deleted post disappears from it.
+        if (type) affectedTypes.add(type);
+
+        // Also nuke the orphan permalink file from disk. We can't know its
+        // slug/date-path without the post, but the caller-loaded Post is gone.
+        // The full rebuild fallback would recreate the build/ dir clean; we
+        // just leave the orphan file here. It's harmless — nothing links to it
+        // now that the collection pages and feeds no longer reference it.
+        // (A future full build will remove it via setup()'s nuke step.)
+      } else {
+        throw new Error(`Unknown op: ${op}`);
+      }
+
+      for (const i of affectedIndices) {
+        await this.buildSinglePageAt(i);
+        console.log(`[incremental] rewrote permalink at position ${i}`);
+      }
+
+      for (const t of affectedTypes) {
+        if (this.postmaster[t] && this.postmaster[t].length > 0) {
+          await this.buildTypeCollection(t);
+        }
+      }
+
+      await this.buildArchive();
+      await this.buildRSSFeeds();
+
+      console.log(`[incremental] update complete (${op} ${postId})`);
+    } catch (error) {
+      console.error('[incremental] failed, falling back to full build:', error);
+      await this.orchestrate();
     }
   }
 
   async orchestrate() {
     await this.setup();
     console.log("✓ Setup complete");
-    
+
     await this.buildSinglePages();
     console.log("✓ Individual permalinks complete");
-    
+
     await this.buildMultiPages();
     console.log("✓ Collection pages complete");
-    
+
     await this.buildAboutPage();
     console.log("✓ About page complete");
-    
+
     await this.buildRSSFeeds();
     console.log('✓ RSS feeds complete');
-    
-    // Final summary
+
     console.log('\n=== BUILD COMPLETE ===');
     console.log(`Total permalinks created: ${this.createdPermalinks.length}`);
-    console.log('All post types (including photos and short posts) now have individual permalinks');
   }
 }
 

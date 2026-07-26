@@ -5,7 +5,7 @@ const fs = require('fs-extra');
 const multer = require('multer');
 
 const { createApiAuth } = require('../lib/apiAuth');
-const { buildSite } = require('../lib/build');
+const { buildSite, updateForPost } = require('../lib/build');
 const Post = require('../post');
 const MediaObject = require('../mediaObject');
 const mastodon = require('../mastodon');
@@ -129,8 +129,8 @@ function createApiRouter() {
 
       (async () => {
         try {
-          await buildSite();
-          log('Site rebuilt');
+          await updateForPost({ postId, op: 'save' });
+          log('Site rebuilt (incremental)');
 
           const mastodonResult = await mastodon.crossPost({
             type: 'photo',
@@ -215,8 +215,8 @@ function createApiRouter() {
 
       (async () => {
         try {
-          await buildSite();
-          log('Site rebuilt');
+          await updateForPost({ postId, op: 'save' });
+          log('Site rebuilt (incremental)');
 
           const mastodonResult = await mastodon.crossPost({
             type: postCategory,
@@ -328,7 +328,7 @@ function createApiRouter() {
       });
       await post.save();
 
-      await buildSite();
+      await updateForPost({ postId, op: 'save' });
 
       res.json({
         success: true,
@@ -350,9 +350,11 @@ function createApiRouter() {
   router.delete('/api/delete-post/:id', apiAuth, async (req, res) => {
     try {
       const post = await Post.loadById(req.params.id);
+      const dateCreated = post.dateCreated;
+      const type = post.categories[0];
       await post.delete();
 
-      await buildSite();
+      await updateForPost({ postId: req.params.id, op: 'delete', dateCreated, type });
 
       res.json({ success: true, message: 'Post deleted successfully' });
     } catch (error) {
