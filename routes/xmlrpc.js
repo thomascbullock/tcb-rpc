@@ -1,4 +1,7 @@
-const { buildSite, updateForPost } = require('../lib/build');
+const express = require('express');
+
+const { parseMethodCall, serializeResponse, serializeFault } = require('../lib/xmlrpc');
+const { updateForPost } = require('../lib/build');
 const Post = require('../post');
 
 const { editPost } = require('../editPost');
@@ -16,53 +19,9 @@ function isFault(result) {
   return result && typeof result === 'object' && 'faultCode' in result;
 }
 
-// Read-only wrapper: no post-processing.
-function createMethodHandler(handler) {
-  return async function (err, params, callback) {
-    try {
-      const result = await handler(params);
-      if (isFault(result)) callback(result, null);
-      else callback(null, result);
-    } catch (error) {
-      console.error(`Error in handler: ${error}`);
-      callback(
-        { faultCode: 500, faultString: `Internal Server Error: ${error.message}` },
-        null
-      );
-    }
-  };
-}
-
-// Wrapper that runs a post-processing step (e.g. incremental rebuild) after
-// the handler succeeds. postProcess receives (params, result) and returns a
-// promise. Errors in postProcess are logged but don't affect the response.
-function createMethodHandlerWithPost(handler, postProcess) {
-  return async function (err, params, callback) {
-    try {
-      const result = await handler(params);
-      if (isFault(result)) {
-        callback(result, null);
-        return;
-      }
-      try {
-        await postProcess(params, result);
-      } catch (postErr) {
-        console.error('post-processing failed:', postErr);
-      }
-      callback(null, result);
-    } catch (error) {
-      console.error(`Error in handler: ${error}`);
-      callback(
-        { faultCode: 500, faultString: `Internal Server Error: ${error.message}` },
-        null
-      );
-    }
-  };
-}
-
-// For blogger.deletePost the postId might be at params[0] (MetaWeblog-style
-// clients hitting this endpoint) or params[1] (Blogger-style). See deletePost.js
-// for the detection logic; we mirror it here.
+// blogger.deletePost accepts params in either order (Blogger-style: appkey
+// first, or MetaWeblog-style: postid first). Match the detection in
+// deletePost.js so we look up the right post.
 function bloggerDeletePostId(params) {
   if (typeof params[0] === 'string' && (params[0].includes('-') || /^\d{8,}/.test(params[0]))) {
     return params[0];
@@ -70,100 +29,132 @@ function bloggerDeletePostId(params) {
   return params[1];
 }
 
-function registerXmlRpcHandlers(xmlrpcServer) {
-  xmlrpcServer.on('NotFound', function (method, params) {
-    console.log(`Method '${method}' does not exist`);
-    console.log('Params:', JSON.stringify(params));
-  });
+// Method table. Each entry:
+//   handler(params) → result | fault
+//   afterSuccess(params, result) → optional, called only on non-fault result
+const methods = {
+  'metaWeblog.getRecentPosts':  { handler: getRecentPosts },
+  'metaWeblog.getCategories':   { handler: getCategories },
+  'metaWeblog.getPost':         { handler: getPost },
+  'blogger.getUserInfo':        { handler: getUserInfo },
+  'blogger.getUsersBlogs':      { handler: getUsersBlogs },
+  'metaWeblog.getUsersBlogs':   { handler: getUsersBlogs },
 
-  // metaWeblog.newPost: returns the new postId.
-  xmlrpcServer.on(
-    'metaWeblog.newPost',
-    createMethodHandlerWithPost(newPost, async (_params, postId) => {
+  'metaWeblog.newPost': {
+    handler: newPost,
+    afterSuccess: async (_params, postId) => {
       await updateForPost({ postId, op: 'save' });
-    })
-  );
-
-  // metaWeblog.editPost: postId is params[0].
-  xmlrpcServer.on(
-    'metaWeblog.editPost',
-    createMethodHandlerWithPost(editPost, async (params) => {
+    },
+  },
+  'metaWeblog.editPost': {
+    handler: editPost,
+    afterSuccess: async (params) => {
       await updateForPost({ postId: params[0], op: 'save' });
-    })
+    },
+  },
+
+  // Deletes need to look up dateCreated + type BEFORE the mutation.
+  'metaWeblog.deletePost': {
+    handler: async (params) => {
+      const postId = params[0];
+      let dateCreated;
+      let type;
+      try {
+        const post = await Post.loadById(postId);
+        dateCreated = post.dateCreated;
+        type = post.categories[0];
+      } catch (_) {}
+      const result = await metaWeblogDeletePost(params);
+      if (isFault(result)) return result;
+      try {
+        await updateForPost({ postId, op: 'delete', dateCreated, type });
+      } catch (err) {
+        console.error('post-processing failed:', err);
+      }
+      return result;
+    },
+  },
+  'blogger.deletePost': {
+    handler: async (params) => {
+      const postId = bloggerDeletePostId(params);
+      let dateCreated;
+      let type;
+      try {
+        const post = await Post.loadById(postId);
+        dateCreated = post.dateCreated;
+        type = post.categories[0];
+      } catch (_) {}
+      const result = await deletePost(params);
+      if (isFault(result)) return result;
+      try {
+        await updateForPost({ postId, op: 'delete', dateCreated, type });
+      } catch (err) {
+        console.error('post-processing failed:', err);
+      }
+      return result;
+    },
+  },
+
+  // newMediaObject only writes to ./img; ./img is served directly, so no rebuild.
+  'metaWeblog.newMediaObject': { handler: newMediaObject },
+};
+
+function createXmlRpcRouter() {
+  const router = express.Router();
+
+  // Capture the raw XML body for /xmlrpc requests specifically. Other routes
+  // are unaffected by this middleware.
+  router.use(
+    '/xmlrpc',
+    express.text({ type: ['text/xml', 'application/xml', '*/xml'], limit: '10mb' })
   );
 
-  // Deletes need the post's dateCreated to locate its former position.
-  // We look it up BEFORE calling the handler by wrapping differently.
-  xmlrpcServer.on('metaWeblog.deletePost', async (err, params, callback) => {
-    const postId = params[0];
-    let dateCreated;
-    let type;
+  router.post('/xmlrpc', async (req, res) => {
+    res.set('Content-Type', 'text/xml');
+
+    let methodName;
+    let params;
     try {
-      const post = await Post.loadById(postId);
-      dateCreated = post.dateCreated;
-      type = post.categories[0];
-    } catch (_) {
-      // Post might already be missing; incremental will fall back to full build.
+      ({ methodName, params } = await parseMethodCall(req.body));
+    } catch (err) {
+      console.error('XML-RPC parse error:', err);
+      res.status(400).send(serializeFault({ faultCode: 400, faultString: `Bad XML-RPC request: ${err.message}` }));
+      return;
     }
+
+    const entry = methods[methodName];
+    if (!entry) {
+      console.log(`XML-RPC method not found: ${methodName}`);
+      res.send(serializeFault({ faultCode: -32601, faultString: `Method '${methodName}' not found` }));
+      return;
+    }
+
+    let result;
     try {
-      const result = await metaWeblogDeletePost(params);
-      if (isFault(result)) {
-        callback(result, null);
-        return;
-      }
+      result = await entry.handler(params);
+    } catch (err) {
+      console.error(`XML-RPC handler error for ${methodName}:`, err);
+      res.send(serializeFault({ faultCode: 500, faultString: `Internal Server Error: ${err.message}` }));
+      return;
+    }
+
+    if (isFault(result)) {
+      res.send(serializeFault(result));
+      return;
+    }
+
+    if (entry.afterSuccess) {
       try {
-        await updateForPost({ postId, op: 'delete', dateCreated, type });
-      } catch (postErr) {
-        console.error('post-processing failed:', postErr);
+        await entry.afterSuccess(params, result);
+      } catch (err) {
+        console.error(`afterSuccess failed for ${methodName}:`, err);
       }
-      callback(null, result);
-    } catch (error) {
-      console.error(`Error in handler: ${error}`);
-      callback(
-        { faultCode: 500, faultString: `Internal Server Error: ${error.message}` },
-        null
-      );
     }
+
+    res.send(serializeResponse(result));
   });
 
-  xmlrpcServer.on('blogger.deletePost', async (err, params, callback) => {
-    const postId = bloggerDeletePostId(params);
-    let dateCreated;
-    try {
-      const post = await Post.loadById(postId);
-      dateCreated = post.dateCreated;
-    } catch (_) {}
-    try {
-      const result = await deletePost(params);
-      if (isFault(result)) {
-        callback(result, null);
-        return;
-      }
-      try {
-        await updateForPost({ postId, op: 'delete', dateCreated, type });
-      } catch (postErr) {
-        console.error('post-processing failed:', postErr);
-      }
-      callback(null, result);
-    } catch (error) {
-      console.error(`Error in handler: ${error}`);
-      callback(
-        { faultCode: 500, faultString: `Internal Server Error: ${error.message}` },
-        null
-      );
-    }
-  });
-
-  // newMediaObject only writes to ./img; nothing in build/ needs updating.
-  xmlrpcServer.on('metaWeblog.newMediaObject', createMethodHandler(newMediaObject));
-
-  // Read-only.
-  xmlrpcServer.on('metaWeblog.getRecentPosts', createMethodHandler(getRecentPosts));
-  xmlrpcServer.on('metaWeblog.getCategories', createMethodHandler(getCategories));
-  xmlrpcServer.on('metaWeblog.getPost', createMethodHandler(getPost));
-  xmlrpcServer.on('blogger.getUserInfo', createMethodHandler(getUserInfo));
-  xmlrpcServer.on('blogger.getUsersBlogs', createMethodHandler(getUsersBlogs));
-  xmlrpcServer.on('metaWeblog.getUsersBlogs', createMethodHandler(getUsersBlogs));
+  return router;
 }
 
-module.exports = { registerXmlRpcHandlers };
+module.exports = { createXmlRpcRouter, methods };
