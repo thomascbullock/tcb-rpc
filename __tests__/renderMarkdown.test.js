@@ -1,4 +1,7 @@
-const { render, popoverizeFootnotes } = require('../lib/renderMarkdown');
+const fs = require('fs-extra');
+const os = require('os');
+const path = require('path');
+const { render, popoverizeFootnotes, addImageSrcset } = require('../lib/renderMarkdown');
 
 describe('renderMarkdown', () => {
   test('basic markdown still renders (smart quotes on)', () => {
@@ -7,7 +10,10 @@ describe('renderMarkdown', () => {
   });
 
   test('inline HTML passes through (html:true)', () => {
-    expect(render('<img src="/x.jpg">')).toContain('<img src="/x.jpg">');
+    // The renderer adds loading=lazy universally to <img> tags.
+    const out = render('<img src="/x.jpg">');
+    expect(out).toContain('src="/x.jpg"');
+    expect(out).toContain('loading="lazy"');
   });
 
   test('footnote reference becomes a <button popovertarget> with anchor-name', () => {
@@ -62,5 +68,62 @@ describe('renderMarkdown', () => {
   test('popoverizeFootnotes is a no-op when there are no footnotes', () => {
     const html = '<p>plain</p>';
     expect(popoverizeFootnotes(html)).toBe(html);
+  });
+});
+
+describe('addImageSrcset', () => {
+  let tmpImg;
+  beforeEach(() => {
+    tmpImg = fs.mkdtempSync(path.join(os.tmpdir(), 'tcb-imgset-'));
+  });
+  afterEach(() => {
+    fs.removeSync(tmpImg);
+  });
+
+  test('adds loading=lazy universally', () => {
+    const html = '<p><img src="/img/whatever.jpg" alt="x"></p>';
+    const out = addImageSrcset(html, { imgRoot: tmpImg });
+    expect(out).toContain('loading="lazy"');
+    expect(out).not.toContain('srcset');
+  });
+
+  test('adds srcset + sizes when a -800 variant exists', () => {
+    fs.writeFileSync(path.join(tmpImg, 'photo-1234.jpg'), 'main');
+    fs.writeFileSync(path.join(tmpImg, 'photo-1234-800.jpg'), 'variant');
+    const html = '<p><img src="/img/photo-1234.jpg" alt="p"></p>';
+    const out = addImageSrcset(html, { imgRoot: tmpImg });
+    expect(out).toContain('srcset="/img/photo-1234-800.jpg 800w, /img/photo-1234.jpg 1200w"');
+    expect(out).toContain('sizes="(max-width: 1200px) 100vw, 1200px"');
+    expect(out).toContain('loading="lazy"');
+  });
+
+  test('preserves existing srcset (author-authored HTML)', () => {
+    fs.writeFileSync(path.join(tmpImg, 'photo-1234.jpg'), 'main');
+    fs.writeFileSync(path.join(tmpImg, 'photo-1234-800.jpg'), 'variant');
+    const html = '<img src="/img/photo-1234.jpg" srcset="/img/x.jpg 2x">';
+    const out = addImageSrcset(html, { imgRoot: tmpImg });
+    expect(out).toBe(html); // untouched
+  });
+
+  test('skips non-local image URLs (external cdn) but still adds loading', () => {
+    const html = '<img src="https://cdn.example.com/x.jpg">';
+    const out = addImageSrcset(html, { imgRoot: tmpImg });
+    expect(out).toContain('loading="lazy"');
+    expect(out).not.toContain('srcset');
+  });
+
+  test('handles self-closing img tag', () => {
+    fs.writeFileSync(path.join(tmpImg, 'a.jpg'), 'main');
+    fs.writeFileSync(path.join(tmpImg, 'a-800.jpg'), 'variant');
+    const html = '<img src="/img/a.jpg" alt="a" />';
+    const out = addImageSrcset(html, { imgRoot: tmpImg });
+    expect(out).toContain('srcset=');
+    expect(out).toMatch(/\/>\s*$/);
+  });
+
+  test('leaves non-img tags alone', () => {
+    const html = '<a href="/img/foo.jpg">link</a>';
+    const out = addImageSrcset(html, { imgRoot: tmpImg });
+    expect(out).toBe(html);
   });
 });

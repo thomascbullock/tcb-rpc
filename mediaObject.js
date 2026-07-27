@@ -35,7 +35,9 @@ class MediaObject {
       maxHeight: options.maxHeight || 1200,
       quality: options.quality || 85,
       convertToJpg: options.convertToJpg !== false, // Default true
-      processImages: options.processImages !== false // Default true
+      processImages: options.processImages !== false, // Default true
+      // Width of the smaller srcset variant (for phones). Set to 0 to skip.
+      variantWidth: options.variantWidth == null ? 800 : options.variantWidth,
     };
 
     // Ensure bits is a Buffer
@@ -138,6 +140,49 @@ class MediaObject {
   }
 
   /**
+   * Generate a smaller companion image for use in srcset.
+   * Naming: main.jpg → main-<variantWidth>.jpg
+   * Only runs for images; skipped if variantWidth is 0/falsy or if the
+   * source is narrower than the variant width (no upscale).
+   *
+   * @param {string} mainFilename - the main file's basename (foo.jpg)
+   * @returns {Promise<string|null>} the variant filename, or null if skipped
+   */
+  async saveVariant(mainFilename) {
+    if (!this.isImage() || !this.options.processImages) return null;
+    const w = this.options.variantWidth;
+    if (!w) return null;
+    try {
+      const image = sharp(this.bits).rotate();
+      const meta = await image.metadata();
+      if (meta.width && meta.width <= w) return null; // don't upscale
+
+      const ext = path.extname(mainFilename);
+      const base = path.basename(mainFilename, ext);
+      const variantName = `${base}-${w}${ext}`;
+
+      let pipeline = image.resize({
+        width: w,
+        fit: 'inside',
+        withoutEnlargement: true,
+      });
+      if (this.options.convertToJpg && meta.format !== 'svg') {
+        pipeline = pipeline.jpeg({
+          quality: this.options.quality,
+          mozjpeg: true,
+          progressive: true,
+        });
+      }
+      const buf = await pipeline.toBuffer();
+      await fsWriteFile(path.join(process.cwd(), 'img', variantName), buf);
+      return variantName;
+    } catch (err) {
+      console.warn('Failed to generate srcset variant:', err.message);
+      return null;
+    }
+  }
+
+  /**
    * Save the media object to disk
    * @returns {Promise<Object>} Result object with file info
    */
@@ -145,32 +190,36 @@ class MediaObject {
     try {
       // Generate new filename
       const newFilename = this.generateFilename();
-      
+
       // Process the file if it's an image
       let processedBits = this.bits;
       if (this.isImage() && this.options.processImages) {
         processedBits = await this.processImage();
       }
-      
+
       // Create directory if it doesn't exist
       await fs.ensureDir(path.join(process.cwd(), 'img'));
-      
-      // Save the file
+
+      // Save the main file
       const filePath = path.join('img', newFilename);
       await fsWriteFile(path.join(process.cwd(), filePath), processedBits);
-      
+
+      // Save the smaller srcset variant if applicable.
+      const variantName = await this.saveVariant(newFilename);
+
       // Determine actual file size
       const stats = await fs.stat(path.join(process.cwd(), filePath));
-      
+
       // Return result object
       const resultObj = {
         name: newFilename,
         url: `/img/${newFilename}`,
         type: this.type,
         size: stats.size,
-        processed: this.isImage() && this.options.processImages
+        processed: this.isImage() && this.options.processImages,
+        variant: variantName ? `/img/${variantName}` : null,
       };
-      
+
       return resultObj;
     } catch (error) {
       console.error('Error saving media object:', error);
