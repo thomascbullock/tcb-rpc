@@ -261,6 +261,113 @@ blockquote p {
     color: #804d1a;
 }
 
+/* ---------- Footnotes (popover) ---------- */
+
+/* The <sup><button> that opens the popover. Real superscript sizing +
+   dotted underline as the affordance. <sup> handles the vertical raising
+   via UA styles; we just make the button small and inheritable. */
+.footnote-ref-btn {
+    background: none;
+    border: 0;
+    padding: 0 0.1em;
+    margin: 0;
+    color: inherit;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.75em;
+    line-height: 1;
+    vertical-align: baseline;
+    text-decoration: underline dotted;
+    text-underline-offset: 2px;
+}
+.footnote-ref-btn:hover {
+    color: #867a7a;
+    text-decoration: underline;
+}
+.footnote-ref-btn:focus-visible {
+    outline: 2px solid #222;
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
+/* Popover box. Small, framed, dropshadow for separation from the page. */
+.footnotes .footnote-item[popover] {
+    max-width: min(24rem, calc(100vw - 2rem));
+    margin: 0;
+    padding: 0.85em 1em;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: #fff;
+    color: #222;
+    font-size: 0.95em;
+    line-height: 1.5;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+}
+.footnotes .footnote-item[popover] p {
+    margin: 0;
+}
+.footnotes .footnote-item[popover] .footnote-backref {
+    display: none;
+}
+
+/* No page dim — the shadow provides separation. */
+.footnote-item[popover]::backdrop {
+    background: transparent;
+}
+
+/* Anchor the popover directly below its trigger button.
+   Progressive enhancement: browsers without CSS anchor positioning
+   (Firefox as of mid-2026) get the default centered popover, which
+   still works fine. */
+@supports (anchor-name: --a) {
+    .footnotes .footnote-item[popover] {
+        inset: unset;
+        top: calc(anchor(bottom) + 0.4em);
+        left: anchor(center);
+        translate: -50% 0;
+        /* If the popover would overflow the viewport, try shifting it. */
+        position-try-fallbacks:
+            --shift-left,
+            --shift-right,
+            --above;
+    }
+    @position-try --shift-left {
+        left: unset;
+        right: 0.5rem;
+        translate: 0 0;
+    }
+    @position-try --shift-right {
+        left: 0.5rem;
+        translate: 0 0;
+    }
+    @position-try --above {
+        top: unset;
+        bottom: calc(anchor(top) + 0.4em);
+        left: anchor(center);
+        translate: -50% 0;
+    }
+}
+
+/* Collapse the bottom fallback section on popover-capable browsers.
+   Can't `display: none` .footnotes because the popover would then be
+   inside a display:none ancestor and refuse to open — instead we shrink
+   it to nothing. Older browsers see the full section as a fallback. */
+@supports selector(:popover-open) {
+    .footnotes-sep {
+        display: none;
+    }
+    .footnotes {
+        margin: 0;
+        padding: 0;
+        border: 0;
+    }
+    .footnotes > ol {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+}
+
 /* Mobile responsive adjustments */
 @media (max-width: 800px) {
     article { 

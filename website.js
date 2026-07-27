@@ -2,11 +2,7 @@
 const fs = require("fs-extra");
 const path = require("path");
 const moment = require("moment");
-const md = require("markdown-it")({
-  html: true,
-  linkify: true,
-  typographer: true,
-});
+const { render: renderMarkdown } = require('./lib/renderMarkdown');
 const Postmaster = require("./postMaster");
 const Page = require("./page_template_new");
 const RSSGenerator = require('./rssGenerator');
@@ -205,7 +201,7 @@ class Website {
     const archiveBag = [{
       title: "Archive",
       dateTime: Date.now(),
-      body: md.render(archive),
+      body: renderMarkdown(archive),
       href: `/posts/archive`,
       noDate: true,
     }];
@@ -224,7 +220,7 @@ class Website {
     const aboutBodyBag = [{
       title: "About",
       dateTime: Date.now(),
-      body: md.render(aboutBody.toString()),
+      body: renderMarkdown(aboutBody.toString()),
       href: "/posts/about",
       noDate: true,
     }];
