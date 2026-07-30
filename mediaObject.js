@@ -8,6 +8,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const sharp = require('sharp');
 const { promisify } = require('util');
+const config = require('./lib/config');
 const fsWriteFile = promisify(fs.writeFile);
 
 class MediaObject {
@@ -174,7 +175,7 @@ class MediaObject {
         });
       }
       const buf = await pipeline.toBuffer();
-      await fsWriteFile(path.join(process.cwd(), 'img', variantName), buf);
+      await fsWriteFile(path.join(config.imgDir, variantName), buf);
       return variantName;
     } catch (err) {
       console.warn('Failed to generate srcset variant:', err.message);
@@ -198,17 +199,17 @@ class MediaObject {
       }
 
       // Create directory if it doesn't exist
-      await fs.ensureDir(path.join(process.cwd(), 'img'));
+      await fs.ensureDir(config.imgDir);
 
       // Save the main file
-      const filePath = path.join('img', newFilename);
-      await fsWriteFile(path.join(process.cwd(), filePath), processedBits);
+      const filePath = path.join(config.imgDir, newFilename);
+      await fsWriteFile(filePath, processedBits);
 
       // Save the smaller srcset variant if applicable.
       const variantName = await this.saveVariant(newFilename);
 
       // Determine actual file size
-      const stats = await fs.stat(path.join(process.cwd(), filePath));
+      const stats = await fs.stat(filePath);
 
       // Return result object
       const resultObj = {

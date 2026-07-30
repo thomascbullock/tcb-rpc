@@ -1,0 +1,43 @@
+# Caddyfile for thomascbullock.com
+#
+# Caddy handles TLS automatically: issues a Let's Encrypt cert on first
+# request, then renews in the background. No certbot, no cron.
+#
+# Deploy: place this at /etc/caddy/Caddyfile and `systemctl reload caddy`.
+# Caddy runs as user `caddy` by default and only needs outbound network
+# for cert issuance + the two listening ports (80, 443).
+
+thomascbullock.com, www.thomascbullock.com {
+    encode gzip zstd
+
+    # Static images live at /var/lib/tcb-rpc/img on disk. They're served
+    # via Express on 3000, but the Cache-Control headers get set here so
+    # they're consistent regardless of route source.
+    header /img/* {
+        Cache-Control "public, max-age=31536000, immutable"
+    }
+    header /css/* {
+        Cache-Control "public, max-age=86400"
+    }
+
+    # Everything else — HTML pages, RSS feeds, /xmlrpc, /api/*, /login,
+    # /post — goes to the node process.
+    reverse_proxy 127.0.0.1:3000
+
+    # Send access logs to syslog via journald.
+    log {
+        output stdout
+        format console
+    }
+}
+
+# Redirect www → apex (optional; comment out if you want www to serve too).
+# Handled implicitly by the multi-hostname block above, which serves both
+# and Caddy's default behavior.
+
+# ---- Local development block (uncomment to run Caddy in front of the
+# dev server locally with a self-signed cert on https://localhost) ----
+#
+# localhost {
+#     reverse_proxy 127.0.0.1:3000
+# }

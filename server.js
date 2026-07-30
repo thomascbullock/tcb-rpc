@@ -6,6 +6,7 @@ const dotenv = require('dotenv');
 const { buildSite } = require('./lib/build');
 const { createApiRouter } = require('./routes/api');
 const { createXmlRpcRouter } = require('./routes/xmlrpc');
+const config = require('./lib/config');
 
 dotenv.config();
 
@@ -79,7 +80,7 @@ app.use(createApiRouter({ loginLimiter }));
 
 app.use(
   '/img',
-  express.static('./img', {
+  express.static(config.imgDir, {
     maxAge: '1y',
     immutable: true,
     etag: false,
@@ -87,7 +88,7 @@ app.use(
 );
 
 app.use(
-  express.static('./build', {
+  express.static(config.buildDir, {
     extensions: ['html'],
     index: 'posts/all/all.html',
     etag: false,

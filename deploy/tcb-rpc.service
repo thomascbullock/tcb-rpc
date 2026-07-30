@@ -1,0 +1,70 @@
+# Install: sudo cp deploy/tcb-rpc.service /etc/systemd/system/tcb-rpc.service
+# Then:    sudo systemctl daemon-reload && sudo systemctl enable --now tcb-rpc
+#
+# Assumes:
+#   - Code checkout at /opt/tcb-rpc/ (owned by root, or read-only for the service)
+#   - Data directory at /var/lib/tcb-rpc/ (writable by the service)
+#   - /etc/tcb-rpc.env holds BLOG_USER, BLOG_PW_HASH, SESSION_SECRET,
+#     WEB_PORT (optional), XMLRPC_PATH (optional), MASTODON_* (optional)
+#
+# See DEPLOY.md for the full walkthrough.
+
+[Unit]
+Description=tcb-rpc (thomascbullock.com blog + XML-RPC + REST)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/tcb-rpc
+ExecStart=/usr/bin/node server.js
+
+# Auto-restart on crash. RestartSec avoids tight loops.
+Restart=on-failure
+RestartSec=5s
+
+# Environment: static file, plus force NODE_ENV.
+EnvironmentFile=/etc/tcb-rpc.env
+Environment=NODE_ENV=production
+Environment=POSTS_DIR=/var/lib/tcb-rpc/posts
+Environment=IMG_DIR=/var/lib/tcb-rpc/img
+Environment=BUILD_DIR=/var/lib/tcb-rpc/build
+
+# ---- Sandboxing ----
+# Dedicated ephemeral user; no persistent uid on the system.
+DynamicUser=yes
+
+# The node process can only write to /var/lib/tcb-rpc (its state dir) and
+# nowhere else. StateDirectory= creates it if missing, chown'd to the
+# DynamicUser identity.
+StateDirectory=tcb-rpc
+StateDirectoryMode=0750
+
+# Read-only view of the rest of the system.
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+NoNewPrivileges=yes
+LockPersonality=yes
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+MemoryDenyWriteExecute=yes
+SystemCallArchitectures=native
+# Allow the syscalls a well-behaved Node app needs; deny others.
+SystemCallFilter=@system-service
+SystemCallErrorNumber=EPERM
+
+# Network: node listens on 127.0.0.1:3000 only (Caddy reverse-proxies
+# from public :80/:443). Outbound is allowed so Mastodon cross-post +
+# APOD fetch continue to work.
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+
+[Install]
+WantedBy=multi-user.target

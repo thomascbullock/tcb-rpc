@@ -6,8 +6,8 @@ const { render: renderMarkdown } = require('./lib/renderMarkdown');
 const Postmaster = require("./postMaster");
 const Page = require("./page_template_new");
 const RSSGenerator = require('./rssGenerator');
+const config = require('./lib/config');
 
-const outputPath = "./build";
 const pageTypes = ["long", "short", "photo", "all"];
 const POSTS_PER_PAGE = 10;
 
@@ -17,20 +17,25 @@ class Website {
     this.createdPermalinks = [];
   }
 
+  // Resolved fresh so tests + custom BUILD_DIR env at runtime work correctly.
+  get outputPath() {
+    return config.buildDir;
+  }
+
   // Ensure the on-disk tree matches what the renderers expect. Called by both
   // full and incremental builds; safe to run multiple times.
   async ensureDirs() {
-    await fs.ensureDir(outputPath);
-    await fs.ensureDir(path.join(outputPath, "css"));
+    await fs.ensureDir(this.outputPath);
+    await fs.ensureDir(path.join(this.outputPath, "css"));
     for (const t of pageTypes) {
-      await fs.ensureDir(path.join(outputPath, "posts", t));
+      await fs.ensureDir(path.join(this.outputPath, "posts", t));
     }
-    await fs.ensureDir(path.join(outputPath, "feeds"));
+    await fs.ensureDir(path.join(this.outputPath, "feeds"));
   }
 
   async copyStaticAssets() {
-    await fs.copyFile("reset.css", path.join(outputPath, "css", "reset.css"));
-    await fs.copyFile("style.css", path.join(outputPath, "css", "style.css"));
+    await fs.copyFile("reset.css", path.join(this.outputPath, "css", "reset.css"));
+    await fs.copyFile("style.css", path.join(this.outputPath, "css", "style.css"));
   }
 
   async loadPosts() {
@@ -39,9 +44,9 @@ class Website {
 
   // Full-build setup: nuke build/ and start fresh.
   async setup() {
-    await fs.ensureDir(outputPath);
-    for (const file of fs.readdirSync(outputPath)) {
-      await fs.remove(path.join(outputPath, file));
+    await fs.ensureDir(this.outputPath);
+    for (const file of fs.readdirSync(this.outputPath)) {
+      await fs.remove(path.join(this.outputPath, file));
     }
     await this.ensureDirs();
     await this.copyStaticAssets();
@@ -53,7 +58,7 @@ class Website {
     const posts = this.postmaster.all;
     const currentPost = posts[i];
 
-    const postDir = path.join(outputPath, 'posts', currentPost.path);
+    const postDir = path.join(this.outputPath, 'posts', currentPost.path);
     await fs.ensureDir(postDir);
 
     let footerPrevious;
@@ -138,7 +143,7 @@ class Website {
     const posts = this.postmaster[postType];
     if (!posts || posts.length === 0) return;
 
-    const pageDir = path.join(outputPath, "posts", postType);
+    const pageDir = path.join(this.outputPath, "posts", postType);
     const pageCount = Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE));
 
     for (let pageIdx = 0; pageIdx < pageCount; pageIdx++) {
@@ -209,7 +214,7 @@ class Website {
       title: "Archive",
       bodyBag: archiveBag,
       fileName: "archive",
-      fileDir: path.join(outputPath, "posts"),
+      fileDir: path.join(this.outputPath, "posts"),
     });
     await archivePage.savePage();
     console.log("✓ Created archive page");
@@ -228,7 +233,7 @@ class Website {
       title: "About",
       bodyBag: aboutBodyBag,
       fileName: "about",
-      fileDir: path.join(outputPath, "posts"),
+      fileDir: path.join(this.outputPath, "posts"),
     });
     await aboutPage.savePage();
     console.log("✓ Created about page");
@@ -241,7 +246,7 @@ class Website {
         siteUrl: 'https://thomascbullock.com',
         siteTitle: 'T',
         siteDescription: "Thom Bullock's Blog",
-        outputDir: path.join(outputPath, 'feeds'),
+        outputDir: path.join(this.outputPath, 'feeds'),
         postmaster: this.postmaster,
         useBlankTitles: true,
       });
@@ -267,7 +272,7 @@ RedirectMatch 301 ^/feeds/long/?$ /feeds/rss-long.xml
 RedirectMatch 301 ^/feeds/short/?$ /feeds/rss-short.xml
 RedirectMatch 301 ^/feeds/photo/?$ /feeds/rss-photo.xml
 `;
-      await fs.writeFile(path.join(outputPath, '.htaccess'), htaccessContent);
+      await fs.writeFile(path.join(this.outputPath, '.htaccess'), htaccessContent);
     } catch (error) {
       console.error('Error building RSS feeds:', error);
     }

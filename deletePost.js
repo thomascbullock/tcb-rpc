@@ -12,6 +12,7 @@ const authError = require('./auth').authError;
 const Post = require('./post');
 const fs = require('fs-extra');
 const path = require('path');
+const config = require('./lib/config');
 
 /**
  * Delete a post
@@ -54,8 +55,7 @@ exports.deletePost = async function(params) {
     }
     
     // Check if the post exists before attempting to delete
-    const postsDir = path.join(process.cwd(), 'posts');
-    const postPath = path.join(postsDir, `${postid}.md`);
+    const postPath = path.join(config.postsDir, `${postid}.md`);
     
     if (!await fs.pathExists(postPath)) {
       console.error(`Post file not found: ${postPath}`);

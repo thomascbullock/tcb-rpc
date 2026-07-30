@@ -1,5 +1,6 @@
 const fs = require('fs-extra');
 const MetaBuilder = require('./posts_meta_builder').MetaBuilder;
+const config = require('./lib/config');
 
 class Postmaster {
   constructor() {
@@ -21,7 +22,7 @@ class Postmaster {
   }
 
   async build(mode) {
-    const metaBuilder = new MetaBuilder('./posts');
+    const metaBuilder = new MetaBuilder(config.postsDir);
     const meta = await metaBuilder.build(mode);
     const postPromises = [];
 

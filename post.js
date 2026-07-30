@@ -5,9 +5,7 @@
 const fs = require('fs-extra');
 const path = require('path');
 const crypto = require('crypto');
-const { exec } = require('child_process');
-const { promisify } = require('util');
-const execAsync = promisify(exec);
+const config = require('./lib/config');
 
 class Post {
   /**
@@ -89,7 +87,7 @@ class Post {
    * @returns {string} Path to the post file
    */
   getFilePath() {
-    return path.join(process.cwd(), 'posts', `${this.postid}.md`);
+    return path.join(config.postsDir, `${this.postid}.md`);
   }
   
   /**
@@ -168,16 +166,13 @@ class Post {
       const postContent = `---\n${JSON.stringify(postMeta, null, 2)}\n---\n${this.description}`;
       
       // Ensure directory exists
-      await fs.ensureDir(path.join(process.cwd(), 'posts'));
+      await fs.ensureDir(config.postsDir);
       
       // Write file
       const filePath = this.getFilePath();
       await fs.writeFile(filePath, postContent);
 
       console.log(`Post ${isUpdate ? 'updated' : 'saved'} to ${filePath}`);
-
-      // Auto-commit to git
-      await this.gitAutoCommit(`${isUpdate ? 'Update' : 'Add'} post ${this.postid}`);
 
       return this.postid;
     } catch (error) {
@@ -202,9 +197,6 @@ class Post {
       // Delete the file
       await fs.remove(filePath);
       console.log(`Post deleted: ${filePath}`);
-
-      // Auto-commit to git
-      await this.gitAutoCommit(`Delete post ${this.postid}`);
     } catch (error) {
       console.error(`Error deleting post: ${error.message}`);
       throw new Error(`Failed to delete post: ${error.message}`);
@@ -212,56 +204,12 @@ class Post {
   }
 
   /**
-   * Auto-commit changes to git for durability
-   * Only runs in production (NODE_ENV=production)
-   * @param {string} message - Commit message
-   * @returns {Promise<void>}
-   */
-  async gitAutoCommit(message) {
-    // Skip git operations in development
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('Skipping git auto-commit (not in production)');
-      return;
-    }
-
-    try {
-      // Check if we're in a git repo
-      await execAsync('git rev-parse --git-dir', { cwd: process.cwd() });
-
-      // Add posts directory and commit
-      await execAsync('git add posts/ img/', { cwd: process.cwd() });
-
-      // Check if there are changes to commit
-      const { stdout: status } = await execAsync('git status --porcelain posts/ img/', { cwd: process.cwd() });
-      if (!status.trim()) {
-        console.log('No changes to commit');
-        return;
-      }
-
-      // Commit and push
-      await execAsync(`git commit -m "${message}"`, { cwd: process.cwd() });
-      console.log(`Git commit: ${message}`);
-
-      // Try to push, but don't fail if it doesn't work (might be offline)
-      try {
-        await execAsync('git push', { cwd: process.cwd() });
-        console.log('Git push successful');
-      } catch (pushError) {
-        console.warn('Git push failed (will retry later):', pushError.message);
-      }
-    } catch (error) {
-      // Don't fail the operation if git commit fails
-      console.warn('Git auto-commit failed:', error.message);
-    }
-  }
-  
-  /**
    * Static method to load a post by ID
    * @param {string} postId - ID of the post to load
    * @returns {Promise<Post>} Loaded post instance
    */
   static async loadById(postId) {
-    const filePath = path.join(process.cwd(), 'posts', `${postId}.md`);
+    const filePath = path.join(config.postsDir, `${postId}.md`);
     
     // Check if file exists
     if (!await fs.pathExists(filePath)) {
