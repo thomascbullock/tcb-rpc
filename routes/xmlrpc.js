@@ -2,6 +2,7 @@ const express = require('express');
 
 const { parseMethodCall, serializeResponse, serializeFault } = require('../lib/xmlrpc');
 const { updateForPost } = require('../lib/build');
+const { mutationQueue } = require('../lib/backgroundQueue');
 const Post = require('../post');
 
 const { editPost } = require('../editPost');
@@ -43,13 +44,20 @@ const methods = {
   'metaWeblog.newPost': {
     handler: newPost,
     afterSuccess: async (_params, postId) => {
-      await updateForPost({ postId, op: 'save' });
+      await mutationQueue.pushAndWait(
+        () => updateForPost({ postId, op: 'save' }),
+        `xmlrpc newPost ${postId}`
+      );
     },
   },
   'metaWeblog.editPost': {
     handler: editPost,
     afterSuccess: async (params) => {
-      await updateForPost({ postId: params[0], op: 'save' });
+      const postId = params[0];
+      await mutationQueue.pushAndWait(
+        () => updateForPost({ postId, op: 'save' }),
+        `xmlrpc editPost ${postId}`
+      );
     },
   },
 
@@ -67,7 +75,10 @@ const methods = {
       const result = await metaWeblogDeletePost(params);
       if (isFault(result)) return result;
       try {
-        await updateForPost({ postId, op: 'delete', dateCreated, type });
+        await mutationQueue.pushAndWait(
+          () => updateForPost({ postId, op: 'delete', dateCreated, type }),
+          `xmlrpc deletePost ${postId}`
+        );
       } catch (err) {
         console.error('post-processing failed:', err);
       }
@@ -87,7 +98,10 @@ const methods = {
       const result = await deletePost(params);
       if (isFault(result)) return result;
       try {
-        await updateForPost({ postId, op: 'delete', dateCreated, type });
+        await mutationQueue.pushAndWait(
+          () => updateForPost({ postId, op: 'delete', dateCreated, type }),
+          `xmlrpc deletePost ${postId}`
+        );
       } catch (err) {
         console.error('post-processing failed:', err);
       }

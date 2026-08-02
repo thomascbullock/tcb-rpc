@@ -5,6 +5,7 @@ const fs = require('fs-extra');
 const multer = require('multer');
 
 const { updateForPost } = require('../lib/build');
+const { mutationQueue } = require('../lib/backgroundQueue');
 const {
   verifyPassword,
   requireAuth,
@@ -208,25 +209,21 @@ function createApiRouter({ loginLimiter } = {}) {
       });
       log('Response sent to client');
 
-      (async () => {
-        try {
-          await updateForPost({ postId, op: 'save' });
-          log('Site rebuilt (incremental)');
+      mutationQueue.push(async () => {
+        await updateForPost({ postId, op: 'save' });
+        log('Site rebuilt (incremental)');
 
-          const mastodonResult = await mastodon.crossPost({
-            type: 'photo',
-            title,
-            content: caption,
-            dateCreated,
-            slug: post.slug,
-            imageBuffer: req.file.buffer,
-            imageMimeType: req.file.mimetype,
-          });
-          if (mastodonResult) log(`Mastodon post created: ${mastodonResult.url}`);
-        } catch (bgError) {
-          console.error('[upload-photo] Background task error:', bgError);
-        }
-      })();
+        const mastodonResult = await mastodon.crossPost({
+          type: 'photo',
+          title,
+          content: caption,
+          dateCreated,
+          slug: post.slug,
+          imageBuffer: req.file.buffer,
+          imageMimeType: req.file.mimetype,
+        });
+        if (mastodonResult) log(`Mastodon post created: ${mastodonResult.url}`);
+      }, `photo ${postId}`);
     } catch (error) {
       console.error('Error handling mobile upload:', error);
       res.status(500).json({ success: false, error: error.message || 'An unknown error occurred' });
@@ -287,23 +284,19 @@ function createApiRouter({ loginLimiter } = {}) {
       });
       log('Response sent to client');
 
-      (async () => {
-        try {
-          await updateForPost({ postId, op: 'save' });
-          log('Site rebuilt (incremental)');
+      mutationQueue.push(async () => {
+        await updateForPost({ postId, op: 'save' });
+        log('Site rebuilt (incremental)');
 
-          const mastodonResult = await mastodon.crossPost({
-            type: postCategory,
-            title: postTitle,
-            content,
-            dateCreated,
-            slug: post.slug,
-          });
-          if (mastodonResult) log(`Mastodon post created: ${mastodonResult.url}`);
-        } catch (bgError) {
-          console.error('[create-text-post] Background task error:', bgError);
-        }
-      })();
+        const mastodonResult = await mastodon.crossPost({
+          type: postCategory,
+          title: postTitle,
+          content,
+          dateCreated,
+          slug: post.slug,
+        });
+        if (mastodonResult) log(`Mastodon post created: ${mastodonResult.url}`);
+      }, `text ${postId}`);
     } catch (error) {
       console.error('Error creating text post:', error);
       res.status(500).json({ success: false, error: error.message || 'An unknown error occurred' });
@@ -374,7 +367,10 @@ function createApiRouter({ loginLimiter } = {}) {
       });
       await post.save();
 
-      await updateForPost({ postId, op: 'save' });
+      await mutationQueue.pushAndWait(
+        () => updateForPost({ postId, op: 'save' }),
+        `edit ${postId}`
+      );
 
       res.json({
         success: true,
@@ -396,7 +392,10 @@ function createApiRouter({ loginLimiter } = {}) {
       const type = post.categories[0];
       await post.delete();
 
-      await updateForPost({ postId: req.params.id, op: 'delete', dateCreated, type });
+      await mutationQueue.pushAndWait(
+        () => updateForPost({ postId: req.params.id, op: 'delete', dateCreated, type }),
+        `delete ${req.params.id}`
+      );
 
       res.json({ success: true, message: 'Post deleted successfully' });
     } catch (error) {

@@ -157,6 +157,7 @@ async function crossPost(options) {
 
   const { type, title, content, dateCreated, slug, imageBuffer, imageMimeType } = options;
   const permalink = getPermalink({ dateCreated, slug });
+  const logCtx = `[mastodon slug=${slug}]`;
 
   try {
     let statusText;
@@ -164,7 +165,7 @@ async function crossPost(options) {
 
     if (type === 'photo' && imageBuffer) {
       // Photo post: upload image and post with caption
-      console.log('Uploading image to Mastodon...');
+      console.log(`${logCtx} uploading image`);
       const mediaId = await uploadMedia(imageBuffer, imageMimeType, title || 'Photo');
       mediaIds.push(mediaId);
 
@@ -202,14 +203,18 @@ async function crossPost(options) {
       statusText = statusText.substring(0, MASTODON_CHAR_LIMIT - 3) + '...';
     }
 
-    console.log(`Posting to Mastodon (${type}): ${statusText.substring(0, 50)}...`);
+    console.log(`${logCtx} posting (${type}): ${statusText.substring(0, 50)}${statusText.length > 50 ? '…' : ''}`);
     const result = await postStatus(statusText, mediaIds);
-    console.log(`Mastodon post created: ${result.url}`);
+    console.log(`${logCtx} posted: ${result.url}`);
 
     return result;
 
   } catch (error) {
-    console.error('Error posting to Mastodon:', error.response?.data || error.message);
+    // Log with structured prefix + slug so `journalctl -u tcb-rpc | grep '\[mastodon'`
+    // surfaces every failure with enough context to correlate to a blog post.
+    const details = error.response?.data ? JSON.stringify(error.response.data) : error.message;
+    const status = error.response?.status || 'no-response';
+    console.error(`${logCtx} FAILED status=${status}: ${details}`);
     // Don't throw - we don't want to fail the blog post
     return null;
   }
